@@ -1,0 +1,121 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Registered university campus member or administrator",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "idCard": { "type": "string" },
+        "role": { "type": "string", "enum": ["student", "faculty", "staff", "admin"] },
+        "department": { "type": "string" },
+        "year": { "type": "string" },
+        "bloodGroup": { "type": "string", "enum": ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] },
+        "phone": { "type": "string" },
+        "gender": { "type": "string" },
+        "dob": { "type": "string" },
+        "lastDonation": { "type": "string" },
+        "isEligible": { "type": "boolean" },
+        "isAvailable": { "type": "boolean" },
+        "verified": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "name", "email", "idCard", "role", "department", "bloodGroup", "phone", "isEligible", "isAvailable"]
+    },
+    "Request": {
+      "title": "Request",
+      "description": "Emergency blood request created by a campus member",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "patientName": { "type": "string" },
+        "bloodGroup": { "type": "string", "enum": ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] },
+        "hospital": { "type": "string" },
+        "location": { "type": "string" },
+        "units": { "type": "number" },
+        "contactName": { "type": "string" },
+        "contactPhone": { "type": "string" },
+        "urgency": { "type": "string", "enum": ["critical", "high", "medium"] },
+        "requiredTime": { "type": "string" },
+        "notes": { "type": "string" },
+        "status": { "type": "string", "enum": ["created", "searching", "accepted", "in_progress", "completed", "closed"] },
+        "acceptedBy": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "patientName", "bloodGroup", "hospital", "location", "units", "contactName", "contactPhone", "urgency", "requiredTime", "status", "createdAt"]
+    },
+    "Donation": {
+      "title": "Donation",
+      "description": "Record of a completed blood donation transaction",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "requestId": { "type": "string" },
+        "donorId": { "type": "string" },
+        "bloodGroup": { "type": "string" },
+        "units": { "type": "number" },
+        "date": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "requestId", "donorId", "bloodGroup", "units", "date", "status"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "Real-time alert dispatched to a matching available donor",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "requestId": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "bloodGroup": { "type": "string" },
+        "hospital": { "type": "string" },
+        "location": { "type": "string" },
+        "patientName": { "type": "string" },
+        "urgency": { "type": "string" },
+        "status": { "type": "string", "enum": ["unread", "read", "accepted", "declined"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "requestId", "title", "message", "bloodGroup", "hospital", "status", "createdAt"]
+    },
+    "Announcement": {
+      "title": "Announcement",
+      "description": "Campus-wide broadcast announcements managed by administrators",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "author": { "type": "string" }
+      },
+      "required": ["id", "title", "content", "createdAt", "author"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile collection indexed by Firebase authentication UID"
+    },
+    "/requests/{requestId}": {
+      "schema": "Request",
+      "description": "Emergency blood requests matching campus needs"
+    },
+    "/donations/{donationId}": {
+      "schema": "Donation",
+      "description": "Log of completed blood donations for statistical dashboards"
+    },
+    "/notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "User specific real-time matched alerts and invitation feedback"
+    },
+    "/announcements/{announcementId}": {
+      "schema": "Announcement",
+      "description": "Campus wide administrative announcements"
+    }
+  }
+}

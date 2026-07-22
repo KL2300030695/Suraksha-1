@@ -1,0 +1,6 @@
+{
+  "name": "SURAKSHA",
+  "description": "One Campus. One Community. Saving Lives Together. An exclusive blood donation network for university campuses to instantly match and notify available donors.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
