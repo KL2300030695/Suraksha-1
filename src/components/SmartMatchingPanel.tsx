@@ -194,7 +194,7 @@ export default function SmartMatchingPanel({ request, currentUser, onUpdate }: S
         location: request.location,
         patientName: request.patientName,
         urgency: request.urgency,
-        status: "read",
+        status: "unread",
         createdAt: new Date().toISOString()
       });
 

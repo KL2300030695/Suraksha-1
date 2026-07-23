@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, getDocs, writeBatch } from "firebase/firestore";
+import { collection, doc, setDoc, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import { UserProfile, EmergencyRequest, DonationRecord, AnnouncementItem } from "../types";
 
