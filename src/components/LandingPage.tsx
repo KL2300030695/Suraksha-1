@@ -1,18 +1,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { 
-  Heart, 
-  ShieldAlert, 
-  MessageSquareX, 
-  Users, 
-  Zap, 
-  ChevronRight, 
-  Bell, 
-  Lock, 
-  Activity, 
-  CheckCircle2, 
-  HelpCircle, 
+import {
+  Heart,
+  Users,
+  Zap,
+  ChevronRight,
+  Lock,
+  Activity,
+  CheckCircle2,
+  HelpCircle,
   Award,
   ArrowRight,
   MapPin,
@@ -21,13 +18,19 @@ import {
   Shield,
   Menu,
   X,
-  Phone,
-  MessageSquare,
+  Mail,
   Globe,
-  Share2,
   HeartPulse,
   Github,
-  Linkedin
+  Linkedin,
+  Droplet,
+  UserPlus,
+  Truck,
+  Coffee,
+  UtensilsCrossed,
+  Moon,
+  Ban,
+  Building2
 } from "lucide-react";
 
 interface LandingPageProps {
@@ -49,11 +52,11 @@ function AnimatedCounter({ value, duration = 1500 }: { value: number; duration?:
     const updateCount = (currentTime: number) => {
       const elapsedTime = currentTime - startTime;
       const progress = Math.min(elapsedTime / duration, 1);
-      
+
       // Easing function: easeOutQuad
       const easeProgress = progress * (2 - progress);
       const currentCount = Math.floor(easeProgress * end);
-      
+
       setCount(currentCount);
 
       if (progress < 1) {
@@ -73,6 +76,50 @@ function AnimatedCounter({ value, duration = 1500 }: { value: number; duration?:
   return <span>{count}</span>;
 }
 
+// Animated ECG / heartbeat pulse visual used inside the hero card
+function HeartbeatPulse() {
+  return (
+    <div className="relative flex-1 flex items-center justify-center py-6">
+      {/* Ambient pulse rings behind the drop */}
+      <div className="absolute w-40 h-40 rounded-full border border-red-500/10 animate-ping opacity-20" />
+      <div className="absolute w-28 h-28 rounded-full border border-red-500/20 animate-pulse" />
+
+      {/* ECG line */}
+      <svg viewBox="0 0 320 100" className="absolute inset-x-0 w-full h-24 opacity-80" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="ecgGradient" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#f87171" stopOpacity="0" />
+            <stop offset="20%" stopColor="#f87171" stopOpacity="0.9" />
+            <stop offset="50%" stopColor="#ef4444" stopOpacity="1" />
+            <stop offset="80%" stopColor="#f87171" stopOpacity="0.9" />
+            <stop offset="100%" stopColor="#f87171" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <motion.path
+          d="M0,50 L60,50 L80,50 L92,20 L104,80 L116,10 L128,50 L150,50 L320,50"
+          fill="none"
+          stroke="url(#ecgGradient)"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: 1, opacity: 1 }}
+          transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut", repeatDelay: 0.4 }}
+        />
+      </svg>
+
+      {/* Blood drop marker, centered on the pulse spike */}
+      <motion.div
+        className="w-20 h-20 bg-gradient-to-br from-red-500 to-rose-600 rounded-[45%_45%_50%_50%/60%_60%_40%_40%] rotate-45 flex items-center justify-center relative z-10 shadow-lg shadow-red-500/30"
+        animate={{ scale: [1, 1.08, 1] }}
+        transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <Droplet className="w-9 h-9 text-white -rotate-45 fill-white/90" />
+      </motion.div>
+    </div>
+  );
+}
+
 export default function LandingPage({ onJoin }: LandingPageProps) {
   const navigate = useNavigate();
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
@@ -87,35 +134,26 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
     }
   };
 
+  const navLinks = [
+    { label: "Home", action: () => window.scrollTo({ top: 0, behavior: "smooth" }) },
+    { label: "About", action: () => scrollToSection("about") },
+    { label: "How It Works", action: () => scrollToSection("how-it-works") },
+    { label: "Donation Tips", action: () => scrollToSection("donation-tips") },
+    { label: "FAQ", action: () => scrollToSection("faq") },
+    { label: "Contact", action: () => scrollToSection("contact") },
+  ];
+
+  const trustBadges = [
+    { icon: <Shield className="w-3.5 h-3.5 text-emerald-400" />, label: "Campus verified" },
+    { icon: <Zap className="w-3.5 h-3.5 text-yellow-400" />, label: "Real-time alerts" },
+    { icon: <Lock className="w-3.5 h-3.5 text-blue-400" />, label: "Privacy protected" },
+  ];
+
   const stats = [
-    { 
-      value: 480, 
-      suffix: "+", 
-      label: "Registered Donors", 
-      sub: "Verified KLU Members", 
-      icon: <Users className="w-5 h-5 text-red-500" /> 
-    },
-    { 
-      value: 120, 
-      suffix: "+", 
-      label: "Lives Saved", 
-      sub: "Emergency Matches", 
-      icon: <Heart className="w-5 h-5 text-red-500" /> 
-    },
-    { 
-      value: 64, 
-      suffix: "+", 
-      label: "Emergency Requests", 
-      sub: "Active Matches Resolved", 
-      icon: <Zap className="w-5 h-5 text-red-500" /> 
-    },
-    { 
-      value: 8, 
-      suffix: " Types", 
-      label: "Blood Groups", 
-      sub: "Fully Supported Compatible Types", 
-      icon: <Activity className="w-5 h-5 text-red-500" /> 
-    }
+    { value: 480, suffix: "+", label: "Registered Donors", sub: "Verified KLU Members", icon: <Users className="w-5 h-5 text-red-500" /> },
+    { value: 120, suffix: "+", label: "Lives Saved", sub: "Emergency Matches", icon: <Heart className="w-5 h-5 text-red-500" /> },
+    { value: 64, suffix: "+", label: "Emergency Requests", sub: "Active Matches Resolved", icon: <Zap className="w-5 h-5 text-red-500" /> },
+    { value: 8, suffix: " Types", label: "Blood Groups", sub: "Fully Supported Compatible Types", icon: <Activity className="w-5 h-5 text-red-500" /> }
   ];
 
   const whyCards = [
@@ -137,62 +175,32 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
   ];
 
   const steps = [
-    {
-      num: "01",
-      title: "Register",
-      desc: "Create your secure donor profile using your official security credentials in under a minute."
-    },
-    {
-      num: "02",
-      title: "Verify University Email",
-      desc: "Authenticate your campus role using your @kluniversity.in email ID to keep public spam out."
-    },
-    {
-      num: "03",
-      title: "Become Available",
-      desc: "Declare your blood group, update your donation history, and toggle your active availability state."
-    },
-    {
-      num: "04",
-      title: "Respond to Emergency Requests",
-      desc: "Receive immediate matching alerts on your radar, verify requirements, and coordinate life-saving support."
-    }
+    { num: "01", title: "Register", desc: "Create your secure donor profile using your official security credentials in under a minute." },
+    { num: "02", title: "Verify University Email", desc: "Authenticate your campus role using your @kluniversity.in email ID to keep public spam out." },
+    { num: "03", title: "Become Available", desc: "Declare your blood group, update your donation history, and toggle your active availability state." },
+    { num: "04", title: "Respond to Emergency Requests", desc: "Receive immediate matching alerts on your radar, verify requirements, and coordinate life-saving support." }
   ];
 
-  const previewRequests = [
-    {
-      bloodGroup: "O-",
-      patient: "Srinivas Rao (Faculty Father)",
-      hospital: "AIIMS Hospital, Vijayawada",
-      distance: "2.8 km from Campus",
-      urgency: "CRITICAL (Within 2 Hours)",
-      unitsNeeded: 3,
-      timePosted: "12 mins ago",
-      isCritical: true,
-      icon: <HeartPulse className="w-5 h-5 text-red-500" />
-    },
-    {
-      bloodGroup: "A+",
-      patient: "Ananya Mehta (B.Tech Student)",
-      hospital: "Ramesh Hospitals, Guntur",
-      distance: "14 km from Campus",
-      urgency: "HIGH (Within 6 Hours)",
-      unitsNeeded: 2,
-      timePosted: "45 mins ago",
-      isCritical: false,
-      icon: <Heart className="w-5 h-5 text-red-400" />
-    },
-    {
-      bloodGroup: "B-",
-      patient: "Suresh Kumar (Lab Assistant)",
-      hospital: "Government General Hospital, Guntur",
-      distance: "12.5 km from Campus",
-      urgency: "MODERATE (Within 12 Hours)",
-      unitsNeeded: 1,
-      timePosted: "2 hours ago",
-      isCritical: false,
-      icon: <Activity className="w-5 h-5 text-yellow-500" />
-    }
+  const eligibilityTips = [
+    { icon: <CheckCircle2 className="w-4.5 h-4.5" />, text: "Aged between 18–65 years" },
+    { icon: <CheckCircle2 className="w-4.5 h-4.5" />, text: "Weigh at least 45kg" },
+    { icon: <CheckCircle2 className="w-4.5 h-4.5" />, text: "Hemoglobin level above 12.5 g/dL" },
+    { icon: <CheckCircle2 className="w-4.5 h-4.5" />, text: "No donation in the last 90 days" },
+    { icon: <Ban className="w-4.5 h-4.5" />, text: "No recent surgery or blood transfusion" },
+  ];
+
+  const beforeTips = [
+    { icon: <Moon className="w-5 h-5 text-blue-400" />, title: "Sleep well", desc: "Get a full night's rest before your donation appointment." },
+    { icon: <UtensilsCrossed className="w-5 h-5 text-blue-400" />, title: "Eat iron-rich food", desc: "Have a healthy, iron-rich meal a few hours prior." },
+    { icon: <Droplet className="w-5 h-5 text-blue-400" />, title: "Stay hydrated", desc: "Drink plenty of water in the 24 hours beforehand." },
+    { icon: <Ban className="w-5 h-5 text-blue-400" />, title: "Avoid alcohol", desc: "Skip alcohol for at least 24 hours before donating." },
+  ];
+
+  const afterTips = [
+    { icon: <Clock className="w-5 h-5 text-emerald-400" />, title: "Rest 10–15 minutes", desc: "Relax at the donation site before resuming activity." },
+    { icon: <Droplet className="w-5 h-5 text-emerald-400" />, title: "Hydrate extra", desc: "Drink more fluids than usual over the next day." },
+    { icon: <Coffee className="w-5 h-5 text-emerald-400" />, title: "Refuel with a snack", desc: "Eat something light and sweet to restore your energy." },
+    { icon: <Ban className="w-5 h-5 text-emerald-400" />, title: "Avoid heavy lifting", desc: "Skip strenuous exercise for the remainder of the day." },
   ];
 
   const testimonials = [
@@ -200,7 +208,7 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
       quote: "My father required urgent O-negative blood for heart surgery. Proximity matches on WhatsApp groups got buried instantly in spam. Within 10 minutes of posting on Suraksha, three students responded, verified compatibility, and arrived at the clinic. It is an indispensable lifesaver.",
       author: "Aditya K. Verma",
       role: "B.Tech CSE, Student",
-      gradient: "from-orange-500 to-red-600 animate-pulse-subtle",
+      gradient: "from-orange-500 to-red-600",
       initials: "AV"
     },
     {
@@ -220,107 +228,63 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
   ];
 
   const faqs = [
-    {
-      q: "Who is allowed to join the Suraksha network?",
-      a: "Only verified students, faculty, and administrative staff members of KL University. You must register using your official university-issued email address ending with @kluniversity.in."
-    },
-    {
-      q: "How does the smart notification matching work?",
-      a: "When an emergency request is posted, our system automatically targets active available campus members with compatible blood types. Instead of broadcasting to everyone and creating spam, high-priority notifications are directed only to eligible matches."
-    },
-    {
-      q: "Are my phone number and details visible to everyone?",
-      a: "No. Your privacy is protected. Your contact number is kept completely hidden from public directories. It is only displayed to the specific verified request creator when you actively tap 'Accept Request'."
-    },
-    {
-      q: "What is the medical eligibility criteria to donate?",
-      a: "Donors must weigh 45kg or more, have a healthy hemoglobin level, and not have donated blood in the last 90 days. The system automatically tracks your eligibility based on your last donation date."
-    },
-    {
-      q: "Can I use public emails like Gmail, Yahoo, or Outlook?",
-      a: "No. To maintain extreme security, campus integrity, and protect student privacy, we reject all public email addresses. Only official @kluniversity.in emails are accepted."
-    }
+    { q: "Who is allowed to join the Suraksha network?", a: "Only verified students, faculty, and administrative staff members of KL University. You must register using your official university-issued email address ending with @kluniversity.in." },
+    { q: "How does the smart notification matching work?", a: "When an emergency request is posted, our system automatically targets active available campus members with compatible blood types. Instead of broadcasting to everyone and creating spam, high-priority notifications are directed only to eligible matches." },
+    { q: "Are my phone number and details visible to everyone?", a: "No. Your privacy is protected. Your contact number is kept completely hidden from public directories. It is only displayed to the specific verified request creator when you actively tap 'Accept Request'." },
+    { q: "What is the medical eligibility criteria to donate?", a: "Donors must weigh 45kg or more, have a healthy hemoglobin level, and not have donated blood in the last 90 days. The system automatically tracks your eligibility based on your last donation date." },
+    { q: "Can I use public emails like Gmail, Yahoo, or Outlook?", a: "No. To maintain extreme security, campus integrity, and protect student privacy, we reject all public email addresses. Only official @kluniversity.in emails are accepted." }
   ];
 
   return (
-    <div className="min-h-screen text-slate-100 bg-[#050816] relative overflow-hidden font-sans selection:bg-red-500 selection:text-white">
-      
+    <div className="min-h-screen text-slate-100 bg-[#05070d] relative overflow-hidden font-sans selection:bg-red-500 selection:text-white">
+
       {/* Abstract Glowing Accent Gradients */}
       <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-red-600/10 blur-[150px] pointer-events-none" />
-      <div className="absolute top-[40%] right-[-10%] w-[500px] h-[500px] rounded-full bg-red-900/10 blur-[130px] pointer-events-none" />
+      <div className="absolute top-[40%] right-[-10%] w-[500px] h-[500px] rounded-full bg-blue-900/10 blur-[130px] pointer-events-none" />
       <div className="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] rounded-full bg-rose-600/5 blur-[160px] pointer-events-none" />
 
-      {/* Floating Animated Red Droplets (Framer Motion) */}
-      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute rounded-full bg-gradient-to-b from-red-500/30 to-red-600/10 border border-red-500/20"
-            style={{
-              width: Math.random() * 14 + 10,
-              height: Math.random() * 20 + 16,
-              left: `${Math.random() * 85 + 5}%`,
-              top: `${Math.random() * 75 + 10}%`,
-              borderRadius: "50% 50% 50% 50% / 60% 60% 40% 40%", // drop-like shape
-            }}
-            animate={{
-              y: [0, -35, 0],
-              x: [0, Math.random() * 15 - 7, 0],
-              opacity: [0.3, 0.7, 0.3],
-            }}
-            transition={{
-              duration: Math.random() * 8 + 6,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: Math.random() * 4,
-            }}
-          />
-        ))}
-      </div>
-
       {/* 1. Fixed Navbar */}
-      <header className="fixed top-0 left-0 w-full z-50 bg-[#050816]/75 backdrop-blur-xl border-b border-white/5 transition-all duration-300">
+      <header className="fixed top-0 left-0 w-full z-50 bg-[#05070d]/80 backdrop-blur-xl border-b border-white/5 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          
+
           {/* Logo */}
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center font-display font-black text-xl text-white shadow-lg shadow-red-500/20">
-              S
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-lg shadow-red-500/30">
+              <Droplet className="w-6 h-6 text-white fill-white/90" />
             </div>
             <div>
-              <span className="font-display text-lg font-black tracking-widest text-white block">SURAKSHA</span>
-              <span className="block text-[8px] font-mono tracking-widest text-red-500 uppercase font-bold">KLU Emergency Shield</span>
+              <span className="font-display text-xl font-black tracking-wide text-white block leading-tight">Suraksha</span>
+              <span className="block text-[9px] font-mono tracking-widest text-red-400 uppercase font-bold">KL University only</span>
             </div>
           </div>
 
           {/* Navigation Links */}
           <nav className="hidden md:flex items-center gap-8">
-            <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="text-xs font-mono font-medium text-gray-400 hover:text-white transition tracking-wider">HOME</button>
-            <button onClick={() => scrollToSection("live-stats")} className="text-xs font-mono font-medium text-gray-400 hover:text-white transition tracking-wider">STATISTICS</button>
-            <button onClick={() => scrollToSection("why-suraksha")} className="text-xs font-mono font-medium text-gray-400 hover:text-white transition tracking-wider">ABOUT</button>
-            <button onClick={() => scrollToSection("how-it-works")} className="text-xs font-mono font-medium text-gray-400 hover:text-white transition tracking-wider">HOW IT WORKS</button>
-            <button onClick={() => scrollToSection("emergency-status")} className="text-xs font-mono font-medium text-gray-400 hover:text-white transition tracking-wider">EMERGENCY</button>
-            <button onClick={() => scrollToSection("faq-section")} className="text-xs font-mono font-medium text-gray-400 hover:text-white transition tracking-wider">FAQ</button>
+            {navLinks.map((link) => (
+              <button key={link.label} onClick={link.action} className="text-sm font-medium text-gray-300 hover:text-white transition tracking-wide">
+                {link.label}
+              </button>
+            ))}
           </nav>
 
           {/* Action Buttons */}
-          <div className="hidden md:flex items-center gap-4">
-            <button 
-              onClick={() => navigate("/login")} 
-              className="text-xs font-mono font-semibold text-gray-300 hover:text-white transition px-4 py-2"
+          <div className="hidden md:flex items-center gap-3">
+            <button
+              onClick={() => navigate("/login")}
+              className="text-xs font-mono font-bold text-gray-200 hover:text-white transition px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10"
             >
-              LOG IN
+              Login
             </button>
-            <button 
-              onClick={() => navigate("/register")} 
-              className="bg-red-600 hover:bg-red-700 text-white text-xs font-mono font-bold px-5 py-2.5 rounded-xl border border-red-500/20 transition shadow-lg shadow-red-950/40 flex items-center gap-1.5 hover:-translate-y-0.5"
+            <button
+              onClick={() => navigate("/register")}
+              className="bg-gradient-to-r from-red-500 via-rose-600 to-orange-500 hover:brightness-110 text-white text-xs font-mono font-bold px-5 py-2.5 rounded-full shadow-lg shadow-red-950/40 flex items-center gap-1.5 hover:-translate-y-0.5 transition"
             >
-              REGISTER PORTAL <ChevronRight className="w-3.5 h-3.5" />
+              <UserPlus className="w-3.5 h-3.5" /> Become Donor
             </button>
           </div>
 
           {/* Mobile Menu Trigger */}
-          <button 
+          <button
             className="md:hidden p-2 text-gray-400 hover:text-white"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
@@ -331,21 +295,20 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
         {/* Mobile Navigation Panel */}
         <AnimatePresence>
           {mobileMenuOpen && (
-            <motion.div 
+            <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="md:hidden bg-[#050816] border-b border-white/5 px-6 pb-6 overflow-hidden space-y-4 flex flex-col"
+              className="md:hidden bg-[#05070d] border-b border-white/5 px-6 pb-6 overflow-hidden space-y-4 flex flex-col"
             >
-              <button onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setMobileMenuOpen(false); }} className="text-left text-sm font-mono text-gray-400 py-2">HOME</button>
-              <button onClick={() => { scrollToSection("live-stats"); setMobileMenuOpen(false); }} className="text-left text-sm font-mono text-gray-400 py-2">STATISTICS</button>
-              <button onClick={() => { scrollToSection("why-suraksha"); setMobileMenuOpen(false); }} className="text-left text-sm font-mono text-gray-400 py-2">ABOUT</button>
-              <button onClick={() => { scrollToSection("how-it-works"); setMobileMenuOpen(false); }} className="text-left text-sm font-mono text-gray-400 py-2">HOW IT WORKS</button>
-              <button onClick={() => { scrollToSection("emergency-status"); setMobileMenuOpen(false); }} className="text-left text-sm font-mono text-gray-400 py-2">EMERGENCY</button>
-              <button onClick={() => { scrollToSection("faq-section"); setMobileMenuOpen(false); }} className="text-left text-sm font-mono text-gray-400 py-2">FAQ</button>
+              {navLinks.map((link) => (
+                <button key={link.label} onClick={link.action} className="text-left text-sm font-mono text-gray-300 py-2">
+                  {link.label.toUpperCase()}
+                </button>
+              ))}
               <div className="pt-2 flex flex-col gap-3">
-                <button onClick={() => navigate("/login")} className="w-full text-center border border-white/10 hover:bg-white/5 py-2.5 rounded-xl text-xs font-mono font-bold">LOG IN</button>
-                <button onClick={() => navigate("/register")} className="w-full text-center bg-red-600 hover:bg-red-700 py-2.5 rounded-xl text-xs font-mono font-bold text-white shadow-lg shadow-red-900/40">REGISTER NOW</button>
+                <button onClick={() => navigate("/login")} className="w-full text-center border border-white/10 hover:bg-white/5 py-2.5 rounded-full text-xs font-mono font-bold">LOG IN</button>
+                <button onClick={() => navigate("/register")} className="w-full text-center bg-gradient-to-r from-red-500 via-rose-600 to-orange-500 py-2.5 rounded-full text-xs font-mono font-bold text-white shadow-lg shadow-red-900/40">BECOME DONOR</button>
               </div>
             </motion.div>
           )}
@@ -353,67 +316,84 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
       </header>
 
       {/* 2. Hero Section */}
-      <section className="relative pt-36 pb-20 px-6 overflow-hidden z-10">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          
+      <section className="relative pt-40 pb-24 px-6 overflow-hidden z-10">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-14 items-center">
+
           {/* Hero Details */}
-          <div className="lg:col-span-7 space-y-8 text-left">
-            <motion.div 
+          <div className="lg:col-span-7 space-y-7 text-left">
+            <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-2 rounded-full text-xs font-mono font-bold tracking-wider"
+              className="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-gray-300 px-4 py-1.5 rounded-full text-[10px] font-mono font-bold tracking-widest uppercase"
             >
-              <Sparkles className="w-3.5 h-3.5 animate-pulse text-red-500" /> SECURE CAMPUS BLOOD DISPATCH NETWORK
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" /> KL University Campus Blood Network
             </motion.div>
 
-            <motion.h1 
+            <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.1 }}
-              className="font-display text-4xl sm:text-6xl font-black tracking-tight leading-none text-white space-y-1"
+              className="font-display text-5xl sm:text-7xl font-black tracking-tight leading-[0.95] text-white"
             >
-              <div>One Campus.</div>
-              <div>One Community.</div>
-              <div className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-rose-400 font-extrabold pb-2">
-                Saving Lives Together.
-              </div>
+              Every Minute<br />Matters.
             </motion.h1>
 
-            <motion.p 
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.15 }}
+              className="text-xl sm:text-2xl font-bold text-gray-300"
+            >
+              Connect Blood Donors Across KL University.
+            </motion.h2>
+
+            <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.2 }}
               className="text-gray-400 text-sm sm:text-base max-w-xl leading-relaxed"
             >
-              Say goodbye to chaotic, unreliable WhatsApp and Telegram spam. Welcome to <span className="text-white font-semibold">Suraksha</span>—the elite, real-time university emergency network connecting verified KL University students, faculty, and staff donors with campus members in critical need.
+              Suraksha is a campus-only emergency blood donation platform for verified KL University students. Register with your @kluniversity.in email, get matched fast, and respond when every second counts.
             </motion.p>
 
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.3 }}
-              className="flex flex-col sm:flex-row gap-4 pt-4"
+              className="flex flex-col sm:flex-row gap-4 pt-2"
             >
-              <button 
-                onClick={() => navigate("/register")} 
-                className="bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 px-8 rounded-xl text-sm transition shadow-xl shadow-red-950/60 flex items-center justify-center gap-2 group hover:-translate-y-0.5"
-              >
-                Become a Donor
-                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition" />
-              </button>
-              <button 
+              <button
                 onClick={() => navigate("/register")}
-                className="text-sm font-mono font-semibold tracking-wider text-gray-300 hover:text-white transition py-3.5 px-6 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl flex items-center justify-center gap-2 hover:-translate-y-0.5"
+                className="bg-gradient-to-r from-red-500 via-rose-600 to-orange-500 hover:brightness-110 text-white font-bold py-3.5 px-8 rounded-full text-sm transition shadow-xl shadow-red-950/60 flex items-center justify-center gap-2 group hover:-translate-y-0.5"
               >
-                Request Blood <ArrowRight className="w-4 h-4" />
+                <UserPlus className="w-4 h-4" /> Become Donor
               </button>
+              <button
+                onClick={() => navigate("/register")}
+                className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:brightness-110 text-white font-bold text-sm tracking-wide transition py-3.5 px-8 rounded-full flex items-center justify-center gap-2 shadow-xl shadow-blue-950/40 hover:-translate-y-0.5"
+              >
+                <Truck className="w-4 h-4" /> Request Blood
+              </button>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.35 }}
+              className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-3"
+            >
+              {trustBadges.map((badge) => (
+                <span key={badge.label} className="flex items-center gap-1.5 text-xs text-gray-400 font-medium">
+                  {badge.icon} {badge.label}
+                </span>
+              ))}
             </motion.div>
           </div>
 
-          {/* Beautiful Tech Visualizer */}
+          {/* Live Response Network Visual Card */}
           <div className="lg:col-span-5 relative flex justify-center items-center">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.2 }}
@@ -421,48 +401,29 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
             >
               {/* Overlay Glass Grid Glow */}
               <div className="absolute top-[-30%] right-[-20%] w-56 h-56 rounded-full bg-red-600/20 blur-3xl" />
-              <div className="absolute bottom-[-10%] left-[-10%] w-44 h-44 rounded-full bg-red-500/10 blur-3xl" />
-              
-              {/* Header inside the Mock Visualizer */}
-              <div className="flex items-center justify-between border-b border-white/5 pb-4">
+              <div className="absolute bottom-[-10%] left-[-10%] w-44 h-44 rounded-full bg-blue-500/10 blur-3xl" />
+
+              {/* Header inside the visualizer card */}
+              <div className="flex items-center justify-between border-b border-white/5 pb-4 relative z-10">
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
-                  <span className="text-[10px] font-mono tracking-widest text-red-400 font-bold">KLU DISPATCH RADAR</span>
-                </div>
-                <span className="text-[9px] font-mono text-gray-500">PING: ACTIVE</span>
-              </div>
-
-              {/* Heart and Connecting Nodes Illustration */}
-              <div className="relative flex-1 flex items-center justify-center py-6">
-                
-                {/* Central Pulse Waves */}
-                <div className="absolute w-44 h-44 rounded-full border border-red-500/10 animate-ping opacity-25" />
-                <div className="absolute w-32 h-32 rounded-full border border-red-500/20 animate-pulse" />
-                
-                {/* Heart Shape representation */}
-                <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl flex items-center justify-center relative z-10 shadow-lg shadow-red-500/30">
-                  <Heart className="w-10 h-10 text-white animate-pulse" />
-                </div>
-
-                {/* Satellite Nodes mimicking nearby available campus donors */}
-                <div className="absolute top-4 left-10 flex items-center gap-1.5 p-1.5 px-2.5 rounded-full bg-[#050816]/90 border border-white/10 shadow text-[9px] font-mono">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-500" /> A- (Faculty)
-                </div>
-                <div className="absolute top-10 right-8 flex items-center gap-1.5 p-1.5 px-2.5 rounded-full bg-[#050816]/90 border border-white/10 shadow text-[9px] font-mono">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-500" /> O- (Student)
-                </div>
-                <div className="absolute bottom-12 left-4 flex items-center gap-1.5 p-1.5 px-2.5 rounded-full bg-[#050816]/90 border border-white/10 shadow text-[9px] font-mono">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-500" /> B+ (Ready)
-                </div>
-                <div className="absolute bottom-8 right-12 flex items-center gap-1.5 p-1.5 px-2.5 rounded-full bg-[#050816]/90 border border-white/10 shadow text-[9px] font-mono">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-500" /> AB+ (Staff)
+                  <span className="text-[11px] font-mono tracking-wide text-gray-300 font-bold">Live response network</span>
                 </div>
               </div>
 
-              {/* Footer of the visualizer card */}
-              <div className="p-3.5 bg-red-500/5 rounded-2xl border border-red-500/10 text-center relative z-10">
-                <div className="text-[10px] font-mono text-red-400 font-bold uppercase tracking-wider mb-0.5">Live Match Synchronization</div>
-                <div className="text-xs text-white font-medium">Automatic matching takes less than 15 minutes</div>
+              {/* Heartbeat / ECG illustration */}
+              <HeartbeatPulse />
+
+              {/* Bottom stat readouts */}
+              <div className="grid grid-cols-2 gap-3 relative z-10">
+                <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-3.5">
+                  <div className="text-xl font-display font-black text-white">11 min</div>
+                  <div className="text-[10px] text-gray-500 font-mono mt-0.5">Average response time</div>
+                </div>
+                <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-3.5">
+                  <div className="text-xl font-display font-black text-white">Verified</div>
+                  <div className="text-[10px] text-gray-500 font-mono mt-0.5">@kluniversity.in only</div>
+                </div>
               </div>
             </motion.div>
           </div>
@@ -470,84 +431,45 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
         </div>
       </section>
 
-      {/* 1. LIVE STATISTICS */}
-      <section id="live-stats" className="py-24 px-6 border-t border-white/5 bg-white/[0.01] relative z-10">
-        <div className="max-w-7xl mx-auto">
-          
-          <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
-            <span className="text-xs font-mono text-red-500 tracking-widest uppercase font-bold">RADAR METRICS</span>
-            <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-white">Live System Performance</h2>
-            <div className="h-1 w-16 bg-gradient-to-r from-red-600 to-rose-400 mx-auto rounded-full mt-4" />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {stats.map((stat, idx) => (
-              <motion.div
-                key={idx}
-                className="relative group rounded-3xl p-6 bg-white/[0.01] border border-white/5 hover:border-red-500/20 transition-all duration-500 overflow-hidden shadow-xl backdrop-blur-md flex flex-col justify-between h-48"
-                animate={{ y: [0, -6, 0] }}
-                transition={{
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: idx * 0.4
-                }}
-                whileHover={{ scale: 1.03, y: -10 }}
-              >
-                {/* Hover Glow Background */}
-                <div className="absolute -inset-px rounded-3xl bg-gradient-to-br from-red-600/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl pointer-events-none" />
-                
-                {/* Glow Ring Border Accent */}
-                <div className="absolute inset-0 rounded-3xl border border-red-500/0 group-hover:border-red-500/10 transition-all duration-500 pointer-events-none" />
-
-                {/* Card Top Row: Custom Styled Icon and Suffix Tag */}
-                <div className="flex items-center justify-between">
-                  <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 group-hover:bg-red-600 group-hover:text-white group-hover:shadow-lg group-hover:shadow-red-600/30 transition-all duration-300">
-                    {stat.icon}
-                  </div>
-                  <span className="text-[9px] font-mono tracking-widest text-gray-500 uppercase font-bold group-hover:text-red-400 transition-colors duration-300">
-                    SECURED PORTAL
-                  </span>
+      {/* 3. LIVE STATISTICS STRIP */}
+      <section className="py-16 px-6 border-t border-white/5 bg-white/[0.01] relative z-10">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-6">
+          {stats.map((stat, idx) => (
+            <div key={idx} className="flex items-center gap-3">
+              <div className="w-11 h-11 shrink-0 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+                {stat.icon}
+              </div>
+              <div>
+                <div className="text-2xl font-display font-black text-white flex items-baseline gap-0.5">
+                  <AnimatedCounter value={stat.value} /><span className="text-sm text-red-500/80">{stat.suffix}</span>
                 </div>
-
-                {/* Card Bottom Row: Animated Counter with Label */}
-                <div>
-                  <div className="text-4xl sm:text-5xl font-display font-black tracking-tight text-white flex items-baseline gap-1 group-hover:text-red-500 transition-colors duration-300">
-                    <AnimatedCounter value={stat.value} />
-                    <span className="text-xl font-bold text-red-500/80 group-hover:text-white transition-colors duration-300">{stat.suffix}</span>
-                  </div>
-                  <p className="text-sm font-semibold text-gray-300 mt-1">{stat.label}</p>
-                  <p className="text-[10px] text-gray-500 font-mono mt-0.5">{stat.sub}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                <p className="text-[11px] text-gray-500 font-mono">{stat.label}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* 2. WHY SURAKSHA */}
-      <section id="why-suraksha" className="py-24 px-6 relative z-10 border-t border-white/5">
+      {/* 4. ABOUT */}
+      <section id="about" className="py-24 px-6 relative z-10 border-t border-white/5">
         <div className="max-w-7xl mx-auto">
-          
+
           <div className="text-center max-w-3xl mx-auto mb-20 space-y-3">
-            <span className="text-xs font-mono text-red-500 tracking-widest uppercase font-bold">THE SURAKSHA SHIELD</span>
-            <h2 className="font-display text-3xl sm:text-4.5xl font-extrabold tracking-tight text-white leading-tight">
+            <span className="text-xs font-mono text-red-500 tracking-widest uppercase font-bold">About Suraksha</span>
+            <h2 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
               Designed from the ground up for critical campus situations
             </h2>
-            <div className="h-1 w-20 bg-gradient-to-r from-red-600 to-rose-400 mx-auto rounded-full mt-4" />
+            <div className="h-1 w-20 bg-gradient-to-r from-red-600 to-orange-400 mx-auto rounded-full mt-4" />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {whyCards.map((card, idx) => (
-              <motion.div 
+              <motion.div
                 key={idx}
                 className="p-8 rounded-3xl bg-white/[0.01] border border-white/5 hover:border-red-500/20 transition-all duration-300 group relative overflow-hidden flex flex-col justify-between shadow-lg h-80"
                 whileHover={{ y: -8 }}
               >
-                {/* Highlight Glow Effect */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/5 rounded-full blur-3xl group-hover:bg-red-500/10 transition duration-500 pointer-events-none" />
-                
-                {/* Glassmorphism gradient lines */}
                 <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
 
                 <div>
@@ -568,25 +490,24 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
         </div>
       </section>
 
-      {/* 3. HOW IT WORKS */}
+      {/* 5. HOW IT WORKS */}
       <section id="how-it-works" className="py-24 px-6 border-t border-white/5 bg-white/[0.01] relative z-10">
         <div className="max-w-7xl mx-auto">
-          
+
           <div className="text-center max-w-2xl mx-auto mb-20 space-y-3">
-            <span className="text-xs font-mono text-red-500 tracking-widest uppercase font-bold">PIPELINE TO A LIFE SAVED</span>
+            <span className="text-xs font-mono text-red-500 tracking-widest uppercase font-bold">Pipeline to a life saved</span>
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
               The 4-Step Network Mechanics
             </h2>
             <p className="text-gray-400 text-sm">Secure, automated, and streamlined campus coordination loops.</p>
-            <div className="h-1 w-16 bg-gradient-to-r from-red-600 to-rose-400 mx-auto rounded-full mt-4" />
+            <div className="h-1 w-16 bg-gradient-to-r from-red-600 to-orange-400 mx-auto rounded-full mt-4" />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
-            
-            {/* Horizontal Timeline Connector Lines on Desktop */}
+
             <div className="hidden md:block absolute top-[68px] left-[12%] right-[12%] h-[2px] bg-white/5 overflow-hidden z-0">
-              <motion.div 
-                className="h-full bg-gradient-to-r from-red-500 via-rose-500 to-red-600"
+              <motion.div
+                className="h-full bg-gradient-to-r from-red-500 via-rose-500 to-orange-500"
                 initial={{ x: "-100%" }}
                 animate={{ x: "100%" }}
                 transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
@@ -595,11 +516,9 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
             </div>
 
             {steps.map((step, idx) => (
-              <div key={idx} className="relative z-10 flex flex-col items-center text-center p-6 bg-[#050816]/80 rounded-2xl border border-white/5 shadow-xl group hover:border-red-500/20 transition duration-300">
-                {/* Circular step badge */}
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#0a0f26] to-[#121c40] border border-white/10 flex items-center justify-center font-display font-black text-lg text-red-500 shadow-md mb-6 relative group-hover:text-white group-hover:from-red-600 group-hover:to-rose-500 group-hover:border-red-500 transition duration-300">
+              <div key={idx} className="relative z-10 flex flex-col items-center text-center p-6 bg-[#05070d]/80 rounded-2xl border border-white/5 shadow-xl group hover:border-red-500/20 transition duration-300">
+                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#0a0f26] to-[#121c40] border border-white/10 flex items-center justify-center font-display font-black text-lg text-red-500 shadow-md mb-6 relative group-hover:text-white group-hover:from-red-600 group-hover:to-orange-500 group-hover:border-red-500 transition duration-300">
                   {step.num}
-                  {/* Connected ring indicator */}
                   <span className="absolute -inset-1.5 rounded-full border border-red-500/0 group-hover:border-red-500/20 transition duration-300 scale-90 group-hover:scale-100" />
                 </div>
                 <h3 className="text-lg font-bold text-white mb-2 group-hover:text-red-500 transition-colors duration-200">{step.title}</h3>
@@ -611,118 +530,105 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
         </div>
       </section>
 
-      {/* 4. LIVE EMERGENCY REQUESTS */}
-      <section id="emergency-status" className="py-24 px-6 relative z-10 border-t border-white/5">
-        <div className="max-w-5xl mx-auto">
-          
-          <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-red-950/20 to-transparent border border-red-500/20 shadow-2xl relative overflow-hidden backdrop-blur-md">
-            
-            {/* Background glowing rings */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/5 rounded-full blur-3xl pointer-events-none" />
-            
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 pb-6 border-b border-white/10">
-              <div>
-                <div className="inline-flex items-center gap-1.5 bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider mb-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
-                  Live Emergency Feed Simulation
-                </div>
-                <h3 className="font-display text-2xl sm:text-3xl font-extrabold text-white">Active Campus Emergency Radar</h3>
-              </div>
-              <div className="flex items-center gap-2 bg-red-950/80 text-red-400 font-mono text-xs px-4 py-2 rounded-xl border border-red-500/20 shadow-lg">
-                <Activity className="w-4 h-4 animate-pulse text-red-500" /> 
-                <span>3 CRITICAL REQUESTS ACTIVE</span>
-              </div>
-            </div>
+      {/* 6. DONATION TIPS */}
+      <section id="donation-tips" className="py-24 px-6 relative z-10 border-t border-white/5">
+        <div className="max-w-7xl mx-auto">
 
-            {/* List of Mock Real-looking Emergency Cards */}
-            <div className="space-y-4">
-              {previewRequests.map((req, idx) => (
-                <div 
-                  key={idx} 
-                  className="p-6 rounded-2xl bg-[#050816]/95 border border-white/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 hover:border-red-500/30 transition duration-300 group relative overflow-hidden"
-                >
-                  <div className="absolute -left-16 top-0 w-32 h-32 bg-red-500/5 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+          <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
+            <span className="text-xs font-mono text-red-500 tracking-widest uppercase font-bold">Stay Safe, Stay Ready</span>
+            <h2 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+              Donation Tips & Eligibility
+            </h2>
+            <p className="text-gray-400 text-sm">Everything you need to know to donate safely and confidently.</p>
+            <div className="h-1 w-16 bg-gradient-to-r from-red-600 to-orange-400 mx-auto rounded-full mt-4" />
+          </div>
 
-                  <div className="space-y-3 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="w-16 text-center py-1 rounded-lg bg-red-600 text-white font-display font-black text-sm tracking-wide shadow shadow-red-900/50">
-                        {req.bloodGroup}
-                      </span>
-                      <span className="text-[10px] font-mono text-red-400 font-bold uppercase tracking-wider flex items-center gap-1">
-                        {req.urgency}
-                      </span>
-                      <span className="text-[10px] font-mono text-gray-500">•</span>
-                      <span className="text-[10px] font-mono text-gray-400 flex items-center gap-1">
-                        <Clock className="w-3 h-3 text-red-500/70" /> {req.timePosted}
-                      </span>
-                    </div>
-                    <h4 className="text-base font-bold text-white group-hover:text-red-500 transition duration-200">{req.patient}</h4>
-                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-400">
-                      <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-red-500/70" /> {req.hospital}</span>
-                      <span className="text-gray-500">•</span>
-                      <span>{req.distance}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 pt-4 md:pt-0 border-white/5">
-                    <div className="text-left md:text-right pr-4">
-                      <div className="text-[9px] font-mono text-gray-500 uppercase tracking-widest">Required Units</div>
-                      <div className="text-sm font-bold text-white">{req.unitsNeeded} units</div>
-                    </div>
-                    <div className="flex gap-2 w-full sm:w-auto">
-                      <button 
-                        onClick={() => navigate("/register")}
-                        className="px-4 py-2 border border-white/10 hover:border-red-500/30 text-gray-300 hover:text-white hover:bg-white/[0.02] text-xs font-mono font-bold rounded-xl transition flex items-center justify-center gap-1 text-center flex-1 sm:flex-none"
-                      >
-                        Request Blood
-                      </button>
-                      <button 
-                        onClick={() => navigate("/login")}
-                        className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-mono font-bold rounded-xl shadow-lg shadow-red-950/80 transition flex items-center justify-center gap-1.5 hover:scale-105 flex-1 sm:flex-none"
-                      >
-                        Accept
-                      </button>
-                    </div>
-                  </div>
+          {/* Eligibility checklist banner */}
+          <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-red-950/20 to-transparent border border-red-500/20 mb-8">
+            <h3 className="text-sm font-mono font-bold text-red-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <Award className="w-4 h-4" /> Eligibility Criteria
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+              {eligibilityTips.map((tip, idx) => (
+                <div key={idx} className="flex items-center gap-2 text-xs text-gray-300 bg-white/[0.02] border border-white/5 rounded-xl p-3">
+                  <span className="text-red-500 shrink-0">{tip.icon}</span>
+                  <span>{tip.text}</span>
                 </div>
               ))}
             </div>
-
           </div>
+
+          {/* Before / After columns */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="p-6 sm:p-8 rounded-3xl bg-white/[0.01] border border-white/5">
+              <h3 className="text-sm font-mono font-bold text-blue-400 uppercase tracking-wider mb-5 flex items-center gap-2">
+                <Clock className="w-4 h-4" /> Before You Donate
+              </h3>
+              <div className="space-y-4">
+                {beforeTips.map((tip, idx) => (
+                  <div key={idx} className="flex items-start gap-3">
+                    <div className="w-9 h-9 shrink-0 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                      {tip.icon}
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-white">{tip.title}</h4>
+                      <p className="text-xs text-gray-400 mt-0.5">{tip.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-6 sm:p-8 rounded-3xl bg-white/[0.01] border border-white/5">
+              <h3 className="text-sm font-mono font-bold text-emerald-400 uppercase tracking-wider mb-5 flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4" /> After You Donate
+              </h3>
+              <div className="space-y-4">
+                {afterTips.map((tip, idx) => (
+                  <div key={idx} className="flex items-start gap-3">
+                    <div className="w-9 h-9 shrink-0 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                      {tip.icon}
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-white">{tip.title}</h4>
+                      <p className="text-xs text-gray-400 mt-0.5">{tip.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
         </div>
       </section>
 
-      {/* 5. DONOR SUCCESS STORIES */}
+      {/* 7. DONOR SUCCESS STORIES */}
       <section className="py-24 px-6 border-t border-white/5 bg-white/[0.01] relative z-10">
         <div className="max-w-6xl mx-auto">
-          
+
           <div className="text-center max-w-2xl mx-auto mb-20 space-y-3">
-            <span className="text-xs font-mono text-red-500 tracking-widest uppercase font-bold">CAMPUS SOLIDARITY</span>
+            <span className="text-xs font-mono text-red-500 tracking-widest uppercase font-bold">Campus Solidarity</span>
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-white">Stories That Drive Us</h2>
-            <div className="h-1 w-16 bg-gradient-to-r from-red-600 to-rose-400 mx-auto rounded-full mt-4" />
+            <div className="h-1 w-16 bg-gradient-to-r from-red-600 to-orange-400 mx-auto rounded-full mt-4" />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.map((t, idx) => (
-              <motion.div 
-                key={idx} 
-                className="p-8 rounded-3xl bg-[#050816] border border-white/5 flex flex-col justify-between shadow-xl relative overflow-hidden group hover:border-red-500/20 transition duration-300 h-[360px]"
+              <motion.div
+                key={idx}
+                className="p-8 rounded-3xl bg-[#05070d] border border-white/5 flex flex-col justify-between shadow-xl relative overflow-hidden group hover:border-red-500/20 transition duration-300 h-[360px]"
                 whileHover={{ y: -8 }}
               >
-                {/* Mini background accent */}
                 <div className="absolute top-0 right-0 w-24 h-24 bg-red-600/5 rounded-full blur-2xl pointer-events-none" />
-                
+
                 <p className="text-xs sm:text-sm italic text-gray-300 leading-relaxed mb-8 flex-1">
                   "{t.quote}"
                 </p>
-                
+
                 <div className="border-t border-white/5 pt-6 flex items-center gap-4">
-                  
-                  {/* Profile Placeholder with Premium Gradient Glow */}
                   <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${t.gradient} flex items-center justify-center text-white font-mono font-black text-xs shadow-lg shadow-black/40 border border-white/10 shrink-0`}>
                     {t.initials}
                   </div>
-
                   <div className="overflow-hidden">
                     <div className="font-bold text-white text-sm truncate">{t.author}</div>
                     <div className="text-xs text-red-500 font-mono mt-0.5 truncate">{t.role}</div>
@@ -735,21 +641,21 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
         </div>
       </section>
 
-      {/* 6. FAQ ACCORDION */}
-      <section id="faq-section" className="py-24 px-6 border-t border-white/5 relative z-10">
+      {/* 8. FAQ ACCORDION */}
+      <section id="faq" className="py-24 px-6 border-t border-white/5 relative z-10">
         <div className="max-w-3xl mx-auto">
-          
+
           <div className="text-center mb-16 space-y-3">
             <span className="text-xs font-mono text-red-500 uppercase tracking-widest font-bold">FAQ</span>
-            <h2 className="font-display text-2xl sm:text-3.5xl font-extrabold text-white">Frequently Answered Queries</h2>
+            <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-white">Frequently Answered Queries</h2>
             <p className="text-xs text-gray-400 font-mono">Everything you need to know about the Suraksha Shield.</p>
-            <div className="h-1 w-12 bg-gradient-to-r from-red-600 to-rose-400 mx-auto rounded-full mt-4" />
+            <div className="h-1 w-12 bg-gradient-to-r from-red-600 to-orange-400 mx-auto rounded-full mt-4" />
           </div>
 
           <div className="space-y-4">
             {faqs.map((faq, idx) => (
-              <div 
-                key={idx} 
+              <div
+                key={idx}
                 className="border border-white/5 rounded-2xl overflow-hidden bg-white/[0.01] transition-all duration-300 hover:border-white/10"
               >
                 <button
@@ -769,7 +675,7 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.25 }}
                     >
-                      <div className="p-5 pt-0 border-t border-white/5 text-xs sm:text-sm text-gray-400 leading-relaxed bg-[#050816]/40">
+                      <div className="p-5 pt-0 border-t border-white/5 text-xs sm:text-sm text-gray-400 leading-relaxed bg-[#05070d]/40">
                         {faq.a}
                       </div>
                     </motion.div>
@@ -782,16 +688,56 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
         </div>
       </section>
 
-      {/* 7. FOOTER */}
-      <footer className="bg-[#050816] border-t border-white/5 pt-16 pb-12 px-6 text-xs text-gray-400 relative z-10">
+      {/* 9. CONTACT */}
+      <section id="contact" className="py-24 px-6 border-t border-white/5 bg-white/[0.01] relative z-10">
+        <div className="max-w-5xl mx-auto">
+
+          <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
+            <span className="text-xs font-mono text-red-500 tracking-widest uppercase font-bold">Get In Touch</span>
+            <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-white">Contact Suraksha</h2>
+            <p className="text-gray-400 text-sm">Reach the campus network team for support, partnerships, or urgent escalations.</p>
+            <div className="h-1 w-16 bg-gradient-to-r from-red-600 to-orange-400 mx-auto rounded-full mt-4" />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="p-6 rounded-2xl bg-[#05070d] border border-white/5 text-center space-y-3">
+              <div className="w-11 h-11 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto text-red-500">
+                <Mail className="w-5 h-5" />
+              </div>
+              <h4 className="text-sm font-bold text-white">Emergency Support</h4>
+              <a href="mailto:emergency@kluniversity.in" className="text-xs text-gray-400 hover:text-red-400 transition font-mono block">
+                emergency@kluniversity.in
+              </a>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-[#05070d] border border-white/5 text-center space-y-3">
+              <div className="w-11 h-11 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto text-red-500">
+                <Building2 className="w-5 h-5" />
+              </div>
+              <h4 className="text-sm font-bold text-white">Campus Location</h4>
+              <p className="text-xs text-gray-400">Green Fields, Vaddeswaram, Guntur, AP, India</p>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-[#05070d] border border-white/5 text-center space-y-3">
+              <div className="w-11 h-11 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto text-red-500">
+                <Clock className="w-5 h-5" />
+              </div>
+              <h4 className="text-sm font-bold text-white">Response Window</h4>
+              <p className="text-xs text-gray-400">Live matching, 24 hours a day, every day of the year</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 10. FOOTER */}
+      <footer className="bg-[#05070d] border-t border-white/5 pt-16 pb-10 px-6 text-xs text-gray-400 relative z-10">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
-            
-            {/* Logo and Tagline */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
+
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-red-600 flex items-center justify-center font-display font-black text-white text-base shadow">
-                  S
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow">
+                  <Droplet className="w-4.5 h-4.5 text-white fill-white/90" />
                 </div>
                 <span className="font-display font-black text-white text-lg tracking-widest">SURAKSHA</span>
               </div>
@@ -800,59 +746,27 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
               </p>
             </div>
 
-            {/* Quick Links */}
             <div>
               <h4 className="text-xs font-mono font-bold text-white uppercase tracking-widest mb-4">Quick Links</h4>
               <ul className="space-y-2 text-[11px]">
-                <li><button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-red-500 transition text-left">Portal Home</button></li>
-                <li><button onClick={() => scrollToSection("live-stats")} className="hover:text-red-500 transition text-left">Live Statistics</button></li>
-                <li><button onClick={() => scrollToSection("why-suraksha")} className="hover:text-red-500 transition text-left">About Suraksha</button></li>
-                <li><button onClick={() => scrollToSection("how-it-works")} className="hover:text-red-500 transition text-left">Network Flow</button></li>
-                <li><button onClick={() => scrollToSection("emergency-status")} className="hover:text-red-500 transition text-left">Active Emergencies</button></li>
+                {navLinks.map((link) => (
+                  <li key={link.label}><button onClick={link.action} className="hover:text-red-500 transition text-left">{link.label}</button></li>
+                ))}
               </ul>
             </div>
 
-            {/* Contact Info */}
             <div>
-              <h4 className="text-xs font-mono font-bold text-white uppercase tracking-widest mb-4">Contact</h4>
-              <ul className="space-y-2 text-[11px] text-gray-400">
-                <li>📍 Green Fields, Vaddeswaram, Guntur, AP, India.</li>
-                <li>
-                  <span className="text-white font-semibold">Emergency Support:</span>
-                  <br />
-                  <a href="mailto:emergency@kluniversity.in" className="hover:text-red-400 transition font-mono">
-                    emergency@kluniversity.in
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Social & Media Connections */}
-            <div>
-              <h4 className="text-xs font-mono font-bold text-white uppercase tracking-widest mb-4">Emergency & Tech Links</h4>
-              <div className="space-y-3 text-[11px] text-gray-400">
-                <p>Verify matches on our secure blockchain-inspired central database ledger.</p>
-                <div className="flex gap-3 text-red-500">
-                  <a 
-                    href="https://github.com" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition cursor-pointer text-gray-300 hover:text-white"
-                  >
-                    <Github className="w-4 h-4" />
-                  </a>
-                  <a 
-                    href="https://linkedin.com" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition cursor-pointer text-gray-300 hover:text-white"
-                  >
-                    <Linkedin className="w-4 h-4" />
-                  </a>
-                  <span className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition cursor-pointer text-gray-300 hover:text-white">
-                    <Globe className="w-4 h-4" />
-                  </span>
-                </div>
+              <h4 className="text-xs font-mono font-bold text-white uppercase tracking-widest mb-4">Connect</h4>
+              <div className="flex gap-3 text-red-500">
+                <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition cursor-pointer text-gray-300 hover:text-white">
+                  <Github className="w-4 h-4" />
+                </a>
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition cursor-pointer text-gray-300 hover:text-white">
+                  <Linkedin className="w-4 h-4" />
+                </a>
+                <span className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition cursor-pointer text-gray-300 hover:text-white">
+                  <Globe className="w-4 h-4" />
+                </span>
               </div>
             </div>
 
@@ -862,7 +776,7 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
             <p>© 2026 SURAKSHA Campus Network. Certified for KL University deployment. All rights reserved.</p>
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
-              <span className="font-mono tracking-wider uppercase text-[9px] text-red-400 font-bold">🔴 SECURE RADAR OPERATIONAL</span>
+              <span className="font-mono tracking-wider uppercase text-[9px] text-red-400 font-bold">Secure Radar Operational</span>
             </div>
           </div>
         </div>

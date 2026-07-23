@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../firebase";
 import { UserProfile, BloodGroup } from "../types";
-import { Search, MapPin, Phone, Mail, Check, Calendar, AlertCircle, RefreshCw, Eye, Heart } from "lucide-react";
+import { Search, MapPin, Phone, Mail, Check, Calendar, AlertCircle, RefreshCw, Eye, Heart, BadgeCheck } from "lucide-react";
 
 export default function DonorDirectory() {
   const [donors, setDonors] = useState<UserProfile[]>([]);
@@ -192,7 +192,9 @@ export default function DonorDirectory() {
                       <h4 className="text-sm font-bold text-white flex items-center gap-1.5 leading-snug">
                         {donor.name}
                         {donor.verified && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-blue-400" title="Verified Campus Account" />
+                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-400 text-[8px] font-mono font-bold uppercase tracking-wide shrink-0">
+                            <BadgeCheck className="w-2.5 h-2.5" /> Verified
+                          </span>
                         )}
                       </h4>
                       <p className="text-[11px] text-gray-400 font-medium capitalize">

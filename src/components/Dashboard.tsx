@@ -788,16 +788,25 @@ export default function Dashboard({ currentUser: initialUser, onLogout }: Dashbo
                   ) : (
                     <div className="space-y-3.5 max-h-[420px] overflow-y-auto pr-1">
                       {activeRequests.map((req) => (
-                        <div 
+                        <div
                           key={req.id}
                           className={`p-5 rounded-2xl bg-white/[0.01] border transition duration-300 relative overflow-hidden ${
-                            req.status === "searching" 
-                              ? "border-red-500/15 hover:border-red-500/35 hover:bg-red-950/[0.01]" 
-                              : "border-white/5"
+                            req.status !== "searching"
+                              ? "border-white/5"
+                              : req.urgency === "critical"
+                              ? "border-red-500/40 hover:border-red-500/60 shadow-lg shadow-red-950/30"
+                              : req.urgency === "high"
+                              ? "border-orange-500/25 hover:border-orange-500/45"
+                              : "border-red-500/15 hover:border-red-500/35 hover:bg-red-950/[0.01]"
                           }`}
                         >
+                          {/* Left urgency rail: instant visual triage for critical requests */}
+                          {req.status === "searching" && req.urgency === "critical" && (
+                            <span className="absolute left-0 top-0 bottom-0 w-1 bg-red-500 animate-pulse" />
+                          )}
+
                           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                            
+
                             {/* Left part: group info */}
                             <div className="space-y-1">
                               <div className="flex flex-wrap items-center gap-2">
@@ -1547,22 +1556,16 @@ export default function Dashboard({ currentUser: initialUser, onLogout }: Dashbo
                     
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
-                        <span className="text-xs font-bold text-slate-100">Public Campus Profile</span>
-                        <p className="text-[10px] text-gray-500">Allow other students to find you in the verified roster for emergency requirements</p>
+                        <span className="text-xs font-bold text-slate-100">Campus Account Verification</span>
+                        <p className="text-[10px] text-gray-500">Verified status is confirmed by campus administrators and controls your eligibility to appear as a matched donor</p>
                       </div>
-                      
-                      {/* Interactive toggle */}
-                      <button
-                        onClick={async () => {
-                          const nextVal = !currentUser.verified;
-                          await updateDoc(doc(db, "users", currentUser.uid), { verified: nextVal });
-                        }}
-                        className={`w-12 h-6 rounded-full p-0.5 transition-colors duration-200 cursor-pointer ${
-                          currentUser.verified ? "bg-red-600" : "bg-white/5 border border-white/5"
-                        }`}
-                      >
-                        <div className={`bg-white w-5 h-5 rounded-full shadow transform duration-200 ${currentUser.verified ? "translate-x-6" : "translate-x-0"}`} />
-                      </button>
+
+                      {/* Read-only status badge: verification is admin-controlled, not user-editable */}
+                      <span className={`px-2.5 py-1 rounded-lg text-[9px] font-mono font-bold uppercase ${
+                        currentUser.verified ? "bg-green-600/15 text-green-400" : "bg-yellow-600/15 text-yellow-500"
+                      }`}>
+                        {currentUser.verified ? "Verified" : "Pending Admin Verification"}
+                      </span>
                     </div>
                   </div>
 

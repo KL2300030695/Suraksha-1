@@ -9,6 +9,18 @@ interface RequestPortalProps {
   onSuccess: () => void;
 }
 
+// Numbered eyebrow heading so a stressed user can scan the form's structure at a glance.
+function SectionLabel({ index, label }: { index: number; label: string }) {
+  return (
+    <div className="flex items-center gap-2 text-[10px] font-mono font-bold text-red-400 uppercase tracking-widest">
+      <span className="w-4.5 h-4.5 shrink-0 rounded-full bg-red-600/10 border border-red-500/20 flex items-center justify-center text-[9px] text-red-400">
+        {index}
+      </span>
+      {label}
+    </div>
+  );
+}
+
 export default function RequestPortal({ currentUser, onSuccess }: RequestPortalProps) {
   const [patientName, setPatientName] = useState("");
   const [bloodGroup, setBloodGroup] = useState<BloodGroup>("O-");
@@ -179,43 +191,56 @@ export default function RequestPortal({ currentUser, onSuccess }: RequestPortalP
               <PlusCircle className="w-6 h-6 text-red-500" /> Dispatch Emergency Request
             </h2>
             <p className="text-xs text-gray-400 mt-1">
-              Trigger the targeted alert system to find matched compatible blood donors inside our university campus instantly.
+              Trigger the targeted alert system to find matched compatible blood donors inside our university campus instantly. Takes about a minute — your contact details are already filled in.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* Blood Type Selection with smart indicator */}
-            <div className="space-y-1.5">
-              <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider">Requested Blood Group *</label>
-              <div className="grid grid-cols-4 gap-2">
-                {(["O-", "O+", "A-", "A+", "B-", "B+", "AB-", "AB+"] as BloodGroup[]).map((bg) => (
-                  <button
-                    key={bg}
-                    type="button"
-                    onClick={() => setBloodGroup(bg)}
-                    className={`py-2 rounded-lg border font-display font-extrabold text-sm transition ${
-                      bloodGroup === bg
-                        ? "bg-red-600 text-white border-red-500 shadow-md shadow-red-950/35"
-                        : "bg-navy-dark/60 text-gray-400 border-white/5 hover:border-white/10"
-                    }`}
-                  >
-                    {bg}
-                  </button>
-                ))}
-              </div>
-              
-              {/* Smart Match Feedback Banner */}
-              <div className="p-3 bg-red-950/20 border border-red-500/15 rounded-xl text-xs flex items-center gap-2.5 mt-2">
-                <Sparkles className="w-4 h-4 text-red-500 shrink-0" />
-                <span>
-                  Smart Match: Compatible donor groups: <span className="font-mono text-red-400 font-bold">{getCompatibleDonors(bloodGroup).join(", ")}</span>. <br />
-                  <span className="text-[11px] text-gray-400">Located <span className="text-green-400 font-semibold font-mono">{matchingCount} active available donors</span> on campus right now.</span>
-                </span>
-              </div>
+          {/* Blood group + live match status: surfaced first so a stressed requester immediately
+              sees that help is available before filling out the rest of the form. */}
+          <div className="space-y-2.5">
+            <SectionLabel index={1} label="Blood Requirement" />
+            <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+              {(["O-", "O+", "A-", "A+", "B-", "B+", "AB-", "AB+"] as BloodGroup[]).map((bg) => (
+                <button
+                  key={bg}
+                  type="button"
+                  onClick={() => setBloodGroup(bg)}
+                  className={`py-2.5 rounded-lg border font-display font-extrabold text-sm transition ${
+                    bloodGroup === bg
+                      ? "bg-red-600 text-white border-red-500 shadow-md shadow-red-950/35"
+                      : "bg-navy-dark/60 text-gray-400 border-white/5 hover:border-white/10"
+                  }`}
+                >
+                  {bg}
+                </button>
+              ))}
             </div>
 
+            {/* Smart Match Feedback Banner */}
+            <div className={`p-4 rounded-xl text-xs flex items-center gap-3 border ${
+              matchingCount > 0 ? "bg-green-950/10 border-green-500/20" : "bg-yellow-950/10 border-yellow-500/20"
+            }`}>
+              <div className={`w-9 h-9 shrink-0 rounded-lg flex items-center justify-center ${
+                matchingCount > 0 ? "bg-green-500/10 text-green-400" : "bg-yellow-500/10 text-yellow-500"
+              }`}>
+                <Sparkles className="w-4.5 h-4.5" />
+              </div>
+              <span>
+                <span className={`font-bold font-mono text-sm ${matchingCount > 0 ? "text-green-400" : "text-yellow-500"}`}>
+                  {matchingCount} active available donor{matchingCount === 1 ? "" : "s"}
+                </span>
+                <span className="text-gray-400"> on campus right now for </span>
+                <span className="font-mono text-red-400 font-bold">{getCompatibleDonors(bloodGroup).join(", ")}</span>.
+                <br />
+                <span className="text-[11px] text-gray-500">Every compatible donor will be notified the instant you submit.</span>
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Patients and Unit details */}
             <div className="space-y-4">
+              <SectionLabel index={2} label="Patient & Timeline" />
               <div>
                 <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-1.5">Patient Name *</label>
                 <div className="relative">
@@ -261,12 +286,7 @@ export default function RequestPortal({ currentUser, onSuccess }: RequestPortalP
                   </select>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* Hospital & Location Details */}
-            <div className="space-y-4">
               <div>
                 <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-1.5">Hospital Name *</label>
                 <div className="relative">
@@ -297,8 +317,9 @@ export default function RequestPortal({ currentUser, onSuccess }: RequestPortalP
               </div>
             </div>
 
-            {/* Primary Contacts */}
+            {/* Primary Contacts + Urgency + Notes */}
             <div className="space-y-4">
+              <SectionLabel index={3} label="Contact Person" />
               <div>
                 <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-1.5">Contact Person Name *</label>
                 <input
@@ -319,46 +340,44 @@ export default function RequestPortal({ currentUser, onSuccess }: RequestPortalP
                   className="w-full bg-navy-dark/60 border border-white/10 focus:border-red-500 rounded-lg py-2 px-3 text-xs text-white focus:outline-none transition font-mono"
                   required
                 />
+                <span className="text-[9px] text-gray-500 mt-1 block">Only shown to the donor who accepts your request.</span>
               </div>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* Urgency selection */}
-            <div>
-              <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-1.5">Urgency Level *</label>
-              <div className="grid grid-cols-3 gap-2">
-                {(["medium", "high", "critical"] as UrgencyLevel[]).map((level) => (
-                  <button
-                    key={level}
-                    type="button"
-                    onClick={() => setUrgency(level)}
-                    className={`py-2 px-1 rounded-lg border text-xs font-mono font-bold capitalize transition ${
-                      urgency === level
-                        ? level === "critical"
-                          ? "bg-red-600 text-white border-red-500 shadow-md"
-                          : level === "high"
-                          ? "bg-orange-600 text-white border-orange-500 shadow-md"
-                          : "bg-yellow-600 text-white border-yellow-500 shadow-md"
-                        : "bg-navy-dark/60 text-gray-400 border-white/5 hover:border-white/10"
-                    }`}
-                  >
-                    {level}
-                  </button>
-                ))}
+              <SectionLabel index={4} label="Urgency & Notes" />
+              <div>
+                <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-1.5">Urgency Level *</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {(["medium", "high", "critical"] as UrgencyLevel[]).map((level) => (
+                    <button
+                      key={level}
+                      type="button"
+                      onClick={() => setUrgency(level)}
+                      className={`py-2 px-1 rounded-lg border text-xs font-mono font-bold capitalize transition ${
+                        urgency === level
+                          ? level === "critical"
+                            ? "bg-red-600 text-white border-red-500 shadow-md"
+                            : level === "high"
+                            ? "bg-orange-600 text-white border-orange-500 shadow-md"
+                            : "bg-yellow-600 text-white border-yellow-500 shadow-md"
+                          : "bg-navy-dark/60 text-gray-400 border-white/5 hover:border-white/10"
+                      }`}
+                    >
+                      {level}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
 
-            {/* Notes */}
-            <div>
-              <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-1.5">Additional Emergency Notes</label>
-              <textarea
-                placeholder="Details of surgery, bypass requirements, doctor reference number or ward information..."
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={2}
-                className="w-full bg-navy-dark/60 border border-white/10 focus:border-red-500 rounded-lg py-2 px-3 text-xs text-white placeholder-gray-500 focus:outline-none transition resize-none"
-              />
+              <div>
+                <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-1.5">Additional Emergency Notes</label>
+                <textarea
+                  placeholder="Details of surgery, bypass requirements, doctor reference number or ward information..."
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  rows={2}
+                  className="w-full bg-navy-dark/60 border border-white/10 focus:border-red-500 rounded-lg py-2 px-3 text-xs text-white placeholder-gray-500 focus:outline-none transition resize-none"
+                />
+              </div>
             </div>
           </div>
 

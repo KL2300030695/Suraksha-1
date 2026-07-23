@@ -1,7 +1,7 @@
 import { useState, useEffect, FormEvent } from "react";
-import { collection, getDocs, doc, updateDoc, deleteDoc, addDoc, writeBatch } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc, deleteDoc, addDoc } from "firebase/firestore";
 import { db } from "../firebase";
-import { UserProfile, EmergencyRequest, DonationRecord, AnnouncementItem, BloodGroup } from "../types";
+import { UserProfile, EmergencyRequest, AnnouncementItem, BloodGroup, RequestStatus } from "../types";
 import { Users, Award, Shield, FileText, Check, Trash2, Megaphone, BarChart3, HelpCircle, Activity, Sparkles, RefreshCw } from "lucide-react";
 
 export default function AdminPanel() {
@@ -73,7 +73,7 @@ export default function AdminPanel() {
     }
   };
 
-  const handleUpdateRequestStatus = async (requestId: string, newStatus: any) => {
+  const handleUpdateRequestStatus = async (requestId: string, newStatus: RequestStatus) => {
     try {
       await updateDoc(doc(db, "requests", requestId), { status: newStatus });
       setRequests((prev) => prev.map((r) => r.id === requestId ? { ...r, status: newStatus } : r));
@@ -288,7 +288,7 @@ export default function AdminPanel() {
                           <div className="flex justify-between text-[10px] font-mono">
                             <span className="text-gray-400">Safety Index:</span>
                             <span className={safetyPercent >= 75 ? "text-green-400" : safetyPercent >= 40 ? "text-yellow-400" : "text-red-500 animate-pulse font-bold"}>
-                              {safetyPercent}% {safetyPercent >= 75 ? "Secure" : safetyPercent >= 40 ? "Optimal" : "DELETED SUPPLY"}
+                              {safetyPercent}% {safetyPercent >= 75 ? "Secure" : safetyPercent >= 40 ? "Optimal" : "CRITICAL SHORTAGE"}
                             </span>
                           </div>
                           <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden">
@@ -345,7 +345,7 @@ export default function AdminPanel() {
                       <td className="p-4">
                         {u.verified ? (
                           <span className="px-2 py-0.5 rounded-full bg-blue-600/10 text-blue-400 font-mono text-[9px] font-bold">
-                            VERIFIED CAMB
+                            VERIFIED
                           </span>
                         ) : (
                           <span className="px-2 py-0.5 rounded-full bg-yellow-600/10 text-yellow-500 font-mono text-[9px] font-bold animate-pulse">
@@ -401,7 +401,7 @@ export default function AdminPanel() {
                   <div className="flex flex-col sm:flex-row gap-2 shrink-0 w-full sm:w-auto">
                     <select
                       value={r.status}
-                      onChange={(e) => handleUpdateRequestStatus(r.id, e.target.value)}
+                      onChange={(e) => handleUpdateRequestStatus(r.id, e.target.value as RequestStatus)}
                       className="bg-navy-dark/85 border border-white/10 rounded-lg py-1.5 px-3 text-xs text-white focus:outline-none transition"
                     >
                       <option value="searching">Searching Donors</option>
