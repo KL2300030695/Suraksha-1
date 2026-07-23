@@ -170,13 +170,6 @@ src/
 
 Replace the sandbox auth flow with real Firebase Authentication and lock down `firestore.rules` to per-user access rules before going live.
 
-<br />
-
-## 📄 License
-
-No license specified yet.
-
-<br />
 
 <div align="center">
 
