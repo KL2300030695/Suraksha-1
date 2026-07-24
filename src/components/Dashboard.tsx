@@ -243,7 +243,7 @@ export default function Dashboard({ currentUser: initialUser, onLogout }: Dashbo
     if (totalCompletedDonations >= 4) return { level: "Platinum Sentinel", rank: 3, icon: "🛡️" };
     if (totalCompletedDonations >= 2) return { level: "Gold Guardian", rank: 2, icon: "⭐" };
     if (totalCompletedDonations >= 1) return { level: "Bronze Defender", rank: 1, icon: "✨" };
-    return { level: "Initiate Roster", rank: 0, icon: "🎗️" };
+    return { level: "New Donor", rank: 0, icon: "🎗️" };
   }, [totalCompletedDonations]);
 
   const unreadNotificationsCount = useMemo(() => {
@@ -296,7 +296,7 @@ export default function Dashboard({ currentUser: initialUser, onLogout }: Dashbo
 
       // Sync Firestore profile
       await updateDoc(doc(db, "users", currentUser.uid), updatedProfile);
-      alert("SaaS Profile database successfully synchronized!");
+      alert("Profile saved successfully!");
       setActiveTab("dashboard");
     } catch (err) {
       console.error("Error updating user profile:", err);
@@ -415,7 +415,7 @@ export default function Dashboard({ currentUser: initialUser, onLogout }: Dashbo
   ];
 
   return (
-    <div className="min-h-screen bg-[#030712] text-slate-100 flex flex-col md:flex-row font-sans">
+    <div className="min-h-screen bg-navy-dark text-slate-100 flex flex-col md:flex-row font-sans">
       
       {/* ========================================================
           SIDEBAR LAYOUT
@@ -429,7 +429,7 @@ export default function Dashboard({ currentUser: initialUser, onLogout }: Dashbo
           </div>
           <div>
             <span className="font-display font-black text-sm tracking-widest text-white">SURAKSHA</span>
-            <span className="block text-[8px] font-mono tracking-wider text-red-500 uppercase leading-none">Console</span>
+            <span className="block text-[8px] font-mono tracking-wider text-red-500 uppercase leading-none">Campus Network</span>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -531,7 +531,7 @@ export default function Dashboard({ currentUser: initialUser, onLogout }: Dashbo
             className="w-full py-2.5 bg-white/5 hover:bg-red-600/10 border border-white/5 hover:border-red-500/20 rounded-xl text-xs font-mono font-bold uppercase tracking-wider text-gray-400 hover:text-red-500 transition cursor-pointer flex items-center justify-center gap-2"
           >
             <LogOut className="w-3.5 h-3.5" />
-            <span>Terminate Session</span>
+            <span>Sign Out</span>
           </button>
         </div>
       </aside>
@@ -577,7 +577,7 @@ export default function Dashboard({ currentUser: initialUser, onLogout }: Dashbo
                     {/* User Profile Photo / Avatar circle with double ring */}
                     <div className="relative group shrink-0">
                       <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-red-600 to-red-500 p-0.5 shadow-lg shadow-red-950/60">
-                        <div className="w-full h-full rounded-full bg-[#030712] flex items-center justify-center font-display font-extrabold text-xl text-red-500 border border-white/5 uppercase">
+                        <div className="w-full h-full rounded-full bg-navy-dark flex items-center justify-center font-display font-extrabold text-xl text-red-500 border border-white/5 uppercase">
                           {currentUser.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
                         </div>
                       </div>
@@ -603,7 +603,7 @@ export default function Dashboard({ currentUser: initialUser, onLogout }: Dashbo
                       {/* Profile Completion Index Progress */}
                       <div className="pt-2 max-w-xs space-y-1.5">
                         <div className="flex justify-between items-center text-[10px] font-mono">
-                          <span className="text-gray-400 uppercase tracking-widest font-bold">Profile Database Sync</span>
+                          <span className="text-gray-400 uppercase tracking-widest font-bold">Profile Completeness</span>
                           <span className="text-red-400 font-bold">{profileCompletion}%</span>
                         </div>
                         <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
@@ -632,9 +632,9 @@ export default function Dashboard({ currentUser: initialUser, onLogout }: Dashbo
                     </div>
                     
                     <div className="mt-3 sm:mt-0 text-center sm:text-right">
-                      <span className="text-[10px] font-mono text-gray-500 uppercase tracking-widest block font-bold">Roster Status</span>
+                      <span className="text-[10px] font-mono text-gray-500 uppercase tracking-widest block font-bold">Availability</span>
                       <span className={`text-xs font-bold ${currentUser.isAvailable ? "text-green-400" : "text-gray-400"}`}>
-                        {currentUser.isAvailable ? "🟢 ACTIVE DISPATCH" : "🔴 SABBATICAL"}
+                        {currentUser.isAvailable ? "🟢 AVAILABLE" : "🔴 UNAVAILABLE"}
                       </span>
                     </div>
                   </div>
@@ -645,8 +645,8 @@ export default function Dashboard({ currentUser: initialUser, onLogout }: Dashbo
                 <div className="bg-white/[0.01] border border-white/5 rounded-2xl p-5 flex flex-col justify-between space-y-4">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="font-display font-black text-white text-sm uppercase tracking-wider">Active Guard</h3>
-                      <p className="text-[9px] text-gray-500 font-mono uppercase tracking-widest mt-0.5">Availability Pipeline</p>
+                      <h3 className="font-display font-black text-white text-sm uppercase tracking-wider">Availability</h3>
+                      <p className="text-[9px] text-gray-500 font-mono uppercase tracking-widest mt-0.5">Ready to donate?</p>
                     </div>
                     <span className={`px-2.5 py-0.5 rounded-lg text-[9px] font-mono font-bold uppercase ${eligibilityInfo.isEligible ? "bg-green-600/15 text-green-400" : "bg-red-600/15 text-red-400"}`}>
                       {eligibilityInfo.status}
@@ -932,7 +932,7 @@ export default function Dashboard({ currentUser: initialUser, onLogout }: Dashbo
                 <div className="space-y-4">
                   <div className="border-b border-white/5 pb-2">
                     <h3 className="font-display font-black text-white text-base flex items-center gap-1.5">
-                      <Award className="w-4.5 h-4.5 text-red-500" /> SaaS Gamified Achievements
+                      <Award className="w-4.5 h-4.5 text-red-500" /> Your Achievements
                     </h3>
                   </div>
 
@@ -947,7 +947,7 @@ export default function Dashboard({ currentUser: initialUser, onLogout }: Dashbo
                       <p className="text-[10px] text-gray-400">Level {donorLevel.rank} active safety guardian</p>
                     </div>
                     <div className="text-right">
-                      <span className="text-[9px] font-mono text-gray-500 uppercase tracking-widest block font-bold">Safe Ledger</span>
+                      <span className="text-[9px] font-mono text-gray-500 uppercase tracking-widest block font-bold">Your Impact</span>
                       <span className="text-sm font-mono font-black text-red-500">{livesSavedCount} Lives Saved</span>
                     </div>
                   </div>
@@ -1048,10 +1048,10 @@ export default function Dashboard({ currentUser: initialUser, onLogout }: Dashbo
                 
                 <div className="border-b border-white/5 pb-4 mb-6">
                   <h2 className="font-display text-xl font-black text-white flex items-center gap-2">
-                    <User className="w-5 h-5 text-red-500" /> SaaS Profile Database Sync
+                    <User className="w-5 h-5 text-red-500" /> Your Profile
                   </h2>
                   <p className="text-xs text-gray-400 mt-1">
-                    Manage your medical records, contact routing, and campus identification cards. All optional fields must synchronize cleanly.
+                    Keep your medical details, contact info, and campus ID up to date so donors and requesters can reach you fast.
                   </p>
                 </div>
 
@@ -1162,7 +1162,7 @@ export default function Dashboard({ currentUser: initialUser, onLogout }: Dashbo
 
                     {/* Blood Group */}
                     <div>
-                      <label className="block text-[10px] font-mono text-gray-400 uppercase tracking-wider mb-1.5 font-bold">Antigen Blood Group *</label>
+                      <label className="block text-[10px] font-mono text-gray-400 uppercase tracking-wider mb-1.5 font-bold">Blood Group *</label>
                       <select
                         value={profileBloodGroup}
                         onChange={(e) => setProfileBloodGroup(e.target.value as BloodGroup)}
@@ -1208,7 +1208,7 @@ export default function Dashboard({ currentUser: initialUser, onLogout }: Dashbo
                       disabled={isUpdatingProfile}
                       className="px-6 py-2.5 bg-red-600 hover:bg-red-700 disabled:bg-gray-800 text-white rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition shadow-lg shadow-red-950/40"
                     >
-                      {isUpdatingProfile ? "Writing Records..." : "Synchronize Database"}
+                      {isUpdatingProfile ? "Saving..." : "Save Changes"}
                     </button>
                   </div>
                 </form>
@@ -1217,7 +1217,7 @@ export default function Dashboard({ currentUser: initialUser, onLogout }: Dashbo
               {/* DONATION LEDGER (Profile Subsection) */}
               <div className="bg-white/[0.01] border border-white/5 rounded-2xl p-6">
                 <h3 className="font-display font-black text-white text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-400" /> Completed Donation Ledger History
+                  <CheckCircle className="w-4 h-4 text-green-400" /> Donation History
                 </h3>
                 
                 {donationHistory.length === 0 ? (
@@ -1230,7 +1230,7 @@ export default function Dashboard({ currentUser: initialUser, onLogout }: Dashbo
                       <div key={d.id} className="p-4 rounded-xl bg-black/40 border border-white/5 flex justify-between items-center text-xs">
                         <div className="space-y-1">
                           <span className="px-2 py-0.5 rounded bg-red-600/10 text-red-500 font-bold font-mono">
-                            {d.bloodGroup} Antigen
+                            {d.bloodGroup}
                           </span>
                           <span className="text-[10px] text-gray-500 font-mono ml-2">ID: {d.id}</span>
                           <div className="text-slate-200 mt-1">Transferred {d.units} units of blood successfully.</div>
@@ -1272,7 +1272,7 @@ export default function Dashboard({ currentUser: initialUser, onLogout }: Dashbo
                       : "border-transparent text-gray-400 hover:text-white"
                   }`}
                 >
-                  My Requests Ledgers ({activeRequests.filter(r => r.userId === currentUser.uid).length})
+                  My Requests ({activeRequests.filter(r => r.userId === currentUser.uid).length})
                 </button>
                 <button
                   onClick={() => setRequestPortalTab("create")}
@@ -1370,7 +1370,7 @@ export default function Dashboard({ currentUser: initialUser, onLogout }: Dashbo
                               )}
 
                               {req.status === "completed" && (
-                                <span className="text-[10px] font-mono text-green-400 font-bold uppercase">Success Ledger Synchronized 🤝</span>
+                                <span className="text-[10px] font-mono text-green-400 font-bold uppercase">Request Completed 🤝</span>
                               )}
                             </div>
                           </div>
@@ -1541,10 +1541,10 @@ export default function Dashboard({ currentUser: initialUser, onLogout }: Dashbo
                 
                 <div className="border-b border-white/5 pb-4 mb-6">
                   <h2 className="font-display text-xl font-black text-white flex items-center gap-2">
-                    <Settings className="w-5 h-5 text-red-500" /> SaaS Network Settings
+                    <Settings className="w-5 h-5 text-red-500" /> Settings
                   </h2>
                   <p className="text-xs text-gray-400 mt-1">
-                    Manage alert visibility parameters, emergency siren levels, and privacy logs.
+                    Manage your visibility, notification preferences, and account privacy.
                   </p>
                 </div>
 
@@ -1571,7 +1571,7 @@ export default function Dashboard({ currentUser: initialUser, onLogout }: Dashbo
 
                   {/* Subsection 2: Notification Toggles */}
                   <div className="space-y-4">
-                    <h3 className="text-xs font-mono font-bold text-gray-400 uppercase tracking-wider border-b border-white/5 pb-1">Dispatch Preferences</h3>
+                    <h3 className="text-xs font-mono font-bold text-gray-400 uppercase tracking-wider border-b border-white/5 pb-1">Notification Preferences</h3>
                     
                     <div className="space-y-3">
                       <div className="flex items-center justify-between text-xs">

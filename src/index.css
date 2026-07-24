@@ -1,37 +1,105 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
+/* ============================================================
+   SURAKSHA DESIGN SYSTEM
+   One cohesive set of tokens so every screen shares the same
+   ink, surfaces, accent, radii, and type. Change here → changes
+   everywhere.
+   ============================================================ */
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Space Grotesk", sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+  /* Type */
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: "Sora", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Ink scale — the single source of truth for dark backgrounds.
+     navy-dark is the canonical page base used across ALL screens. */
+  --color-navy-dark: #060910;   /* page base */
+  --color-navy-light: #0e1524;  /* raised cards / panels */
+  --color-ink-950: #04070d;     /* deepest wells / insets */
+  --color-ink-900: #060910;     /* = page base */
+  --color-ink-800: #0b111e;     /* subtle raised surface */
+  --color-ink-700: #131b2c;     /* controls / inputs */
+
+  /* Brand accent — blood red */
   --color-bloodred: #dc2626;
-  --color-navy-dark: #070b16;
-  --color-navy-light: #0f172a;
+  --color-brand-50: #fef2f2;
+  --color-brand-300: #fca5a5;
+  --color-brand-400: #f87171;
+  --color-brand-500: #ef4444;
+  --color-brand-600: #dc2626;
+  --color-brand-700: #b91c1c;
+
+  /* Glass */
   --color-glass: rgba(255, 255, 255, 0.03);
   --color-glass-border: rgba(255, 255, 255, 0.08);
+
+  /* Radii */
+  --radius-xl: 0.875rem;
+  --radius-2xl: 1.125rem;
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background-color: var(--color-navy-dark);
-  color: #f8fafc;
+  color: #f1f5f9;
   font-family: var(--font-sans);
   overflow-x: hidden;
+  /* Crisp, even font rendering — this is what makes the type
+     look intentional on Windows/Chrome instead of muddy. */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "cv11", "ss01";
+  letter-spacing: -0.006em;
 }
 
-/* Custom scrollbar for startup tech aesthetic */
+/* Display headings: tighter, more confident */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* Keyboard accessibility: a visible focus ring for anyone
+   tabbing through the emergency flow (previously outline:none
+   left keyboard users with no indicator at all). */
+:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: var(--color-brand-500);
+  color: #fff;
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-navy-dark);
+  background: var(--color-ink-950);
 }
 ::-webkit-scrollbar-thumb {
-  background: #ef4444;
-  border-radius: 3px;
+  background: #7f1d1d;
+  border-radius: 4px;
+  border: 2px solid var(--color-ink-950);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #dc2626;
+  background: var(--color-brand-600);
 }
-
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #7f1d1d var(--color-ink-950);
+}

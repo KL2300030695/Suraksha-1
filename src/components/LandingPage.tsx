@@ -236,7 +236,7 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
   ];
 
   return (
-    <div className="min-h-screen text-slate-100 bg-[#05070d] relative overflow-hidden font-sans selection:bg-red-500 selection:text-white">
+    <div className="min-h-screen text-slate-100 bg-navy-dark relative overflow-hidden font-sans selection:bg-red-500 selection:text-white">
 
       {/* Abstract Glowing Accent Gradients */}
       <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-red-600/10 blur-[150px] pointer-events-none" />
@@ -244,7 +244,7 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
       <div className="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] rounded-full bg-rose-600/5 blur-[160px] pointer-events-none" />
 
       {/* 1. Fixed Navbar */}
-      <header className="fixed top-0 left-0 w-full z-50 bg-[#05070d]/80 backdrop-blur-xl border-b border-white/5 transition-all duration-300">
+      <header className="fixed top-0 left-0 w-full z-50 bg-navy-dark/80 backdrop-blur-xl border-b border-white/5 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
 
           {/* Logo */}
@@ -299,7 +299,7 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="md:hidden bg-[#05070d] border-b border-white/5 px-6 pb-6 overflow-hidden space-y-4 flex flex-col"
+              className="md:hidden bg-navy-dark border-b border-white/5 px-6 pb-6 overflow-hidden space-y-4 flex flex-col"
             >
               {navLinks.map((link) => (
                 <button key={link.label} onClick={link.action} className="text-left text-sm font-mono text-gray-300 py-2">
@@ -481,7 +481,7 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
                 </div>
 
                 <div className="text-[11px] font-mono text-red-500 uppercase tracking-widest flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition duration-300">
-                  Secure Dispatch Pipeline <ArrowRight className="w-3.5 h-3.5" />
+                  Secure & Fast <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </motion.div>
             ))}
@@ -495,7 +495,7 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
         <div className="max-w-7xl mx-auto">
 
           <div className="text-center max-w-2xl mx-auto mb-20 space-y-3">
-            <span className="text-xs font-mono text-red-500 tracking-widest uppercase font-bold">Pipeline to a life saved</span>
+            <span className="text-xs font-mono text-red-500 tracking-widest uppercase font-bold">How a life gets saved</span>
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
               The 4-Step Network Mechanics
             </h2>
@@ -516,7 +516,7 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
             </div>
 
             {steps.map((step, idx) => (
-              <div key={idx} className="relative z-10 flex flex-col items-center text-center p-6 bg-[#05070d]/80 rounded-2xl border border-white/5 shadow-xl group hover:border-red-500/20 transition duration-300">
+              <div key={idx} className="relative z-10 flex flex-col items-center text-center p-6 bg-navy-dark/80 rounded-2xl border border-white/5 shadow-xl group hover:border-red-500/20 transition duration-300">
                 <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#0a0f26] to-[#121c40] border border-white/10 flex items-center justify-center font-display font-black text-lg text-red-500 shadow-md mb-6 relative group-hover:text-white group-hover:from-red-600 group-hover:to-orange-500 group-hover:border-red-500 transition duration-300">
                   {step.num}
                   <span className="absolute -inset-1.5 rounded-full border border-red-500/0 group-hover:border-red-500/20 transition duration-300 scale-90 group-hover:scale-100" />
@@ -616,7 +616,7 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
             {testimonials.map((t, idx) => (
               <motion.div
                 key={idx}
-                className="p-8 rounded-3xl bg-[#05070d] border border-white/5 flex flex-col justify-between shadow-xl relative overflow-hidden group hover:border-red-500/20 transition duration-300 h-[360px]"
+                className="p-8 rounded-3xl bg-navy-dark border border-white/5 flex flex-col justify-between shadow-xl relative overflow-hidden group hover:border-red-500/20 transition duration-300 h-[360px]"
                 whileHover={{ y: -8 }}
               >
                 <div className="absolute top-0 right-0 w-24 h-24 bg-red-600/5 rounded-full blur-2xl pointer-events-none" />
@@ -675,7 +675,7 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.25 }}
                     >
-                      <div className="p-5 pt-0 border-t border-white/5 text-xs sm:text-sm text-gray-400 leading-relaxed bg-[#05070d]/40">
+                      <div className="p-5 pt-0 border-t border-white/5 text-xs sm:text-sm text-gray-400 leading-relaxed bg-navy-dark/40">
                         {faq.a}
                       </div>
                     </motion.div>
@@ -700,7 +700,7 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="p-6 rounded-2xl bg-[#05070d] border border-white/5 text-center space-y-3">
+            <div className="p-6 rounded-2xl bg-navy-dark border border-white/5 text-center space-y-3">
               <div className="w-11 h-11 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto text-red-500">
                 <Mail className="w-5 h-5" />
               </div>
@@ -710,7 +710,7 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
               </a>
             </div>
 
-            <div className="p-6 rounded-2xl bg-[#05070d] border border-white/5 text-center space-y-3">
+            <div className="p-6 rounded-2xl bg-navy-dark border border-white/5 text-center space-y-3">
               <div className="w-11 h-11 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto text-red-500">
                 <Building2 className="w-5 h-5" />
               </div>
@@ -718,7 +718,7 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
               <p className="text-xs text-gray-400">Green Fields, Vaddeswaram, Guntur, AP, India</p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-[#05070d] border border-white/5 text-center space-y-3">
+            <div className="p-6 rounded-2xl bg-navy-dark border border-white/5 text-center space-y-3">
               <div className="w-11 h-11 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto text-red-500">
                 <Clock className="w-5 h-5" />
               </div>
@@ -730,7 +730,7 @@ export default function LandingPage({ onJoin }: LandingPageProps) {
       </section>
 
       {/* 10. FOOTER */}
-      <footer className="bg-[#05070d] border-t border-white/5 pt-16 pb-10 px-6 text-xs text-gray-400 relative z-10">
+      <footer className="bg-navy-dark border-t border-white/5 pt-16 pb-10 px-6 text-xs text-gray-400 relative z-10">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
 
