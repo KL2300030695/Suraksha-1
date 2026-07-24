@@ -102,7 +102,7 @@ export default function DonorDirectory() {
           onClick={fetchDonors}
           className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300 transition font-mono"
         >
-          <RefreshCw className="w-3.5 h-3.5" /> Re-Sync Roster
+          <RefreshCw className="w-3.5 h-3.5" /> Refresh
         </button>
       </div>
 
@@ -144,7 +144,7 @@ export default function DonorDirectory() {
             onChange={(e) => setSelectedAvailability(e.target.value)}
             className="w-full bg-navy-dark/60 border border-white/10 focus:border-red-500 rounded-lg py-2 px-3 text-xs text-white focus:outline-none transition"
           >
-            <option value="ALL">Show All Roster</option>
+            <option value="ALL">All Members</option>
             <option value="available">🟢 Available Donors Only</option>
             <option value="unavailable">🔴 On Recovery/Sabbatical</option>
           </select>
@@ -162,7 +162,7 @@ export default function DonorDirectory() {
           <AlertCircle className="w-8 h-8 text-red-500 mx-auto" />
           <h4 className="text-sm font-semibold text-white">No Matching Campus Donors</h4>
           <p className="text-xs text-gray-400 max-w-md mx-auto">
-            Try adjusting your search query or selecting 'Show All Roster' to locate available members.
+            Try adjusting your search or selecting 'All Members' to find available donors.
           </p>
         </div>
       ) : (

@@ -221,7 +221,7 @@ export default function SmartMatchingPanel({ request, currentUser, onUpdate }: S
   };
 
   return (
-    <div className="mt-4 p-5 rounded-2xl bg-[#0b1329]/80 border border-red-500/10 space-y-4 shadow-xl">
+    <div className="mt-4 p-5 rounded-2xl bg-navy-light/80 border border-red-500/10 space-y-4 shadow-xl">
       <div className="flex justify-between items-center border-b border-white/5 pb-3">
         <div className="flex items-center gap-2">
           <div className="p-1 bg-red-600/10 text-red-500 rounded-lg">

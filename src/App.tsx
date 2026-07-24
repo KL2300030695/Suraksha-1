@@ -326,10 +326,10 @@ function AppContent() {
               <footer className="border-t border-white/5 bg-navy-dark py-8 px-6 text-center text-[10px] text-gray-500 font-mono">
                 <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
                   <span className="text-gray-400 flex items-center gap-1">
-                    <Globe className="w-3.5 h-3.5 text-red-500" /> SURAKSHA Campus Security Console
+                    <Globe className="w-3.5 h-3.5 text-red-500" /> SURAKSHA Campus Emergency Network
                   </span>
                   <span>
-                    © 2026 SURAKSHA. Active safety reserves syncing perfectly.
+                    © 2026 SURAKSHA. One campus, one community, saving lives together.
                   </span>
                 </div>
               </footer>

@@ -406,7 +406,7 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
               disabled={loading}
               className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-800 text-white font-medium py-2 px-4 rounded-lg text-sm transition shadow-lg shadow-red-950/50 flex justify-center items-center gap-2"
             >
-              {loading ? "Verifying Credentials..." : "Log In & Secure"}
+              {loading ? "Signing in..." : "Log In"}
             </button>
 
             <div className="text-center mt-6">
@@ -689,7 +689,7 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
                     disabled={loading}
                     className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-800 text-white font-medium py-2.5 px-4 rounded-lg text-xs font-mono font-bold uppercase tracking-wider transition shadow-lg shadow-red-950/50 flex justify-center items-center gap-2"
                   >
-                    {loading ? "Deploying Profile Security..." : "Complete Registration"}
+                    {loading ? "Creating your account..." : "Complete Registration"}
                   </button>
                 )}
               </div>

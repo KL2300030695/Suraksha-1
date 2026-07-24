@@ -384,7 +384,7 @@ export default function RequestPortal({ currentUser, onSuccess }: RequestPortalP
           <div className="p-3.5 bg-yellow-950/20 border border-yellow-500/10 rounded-xl text-xs text-gray-400 flex items-start gap-2">
             <AlertCircle className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
             <span>
-              <span className="font-semibold text-white">Emergency Honor Guard:</span> Falsifying blood donation requests is a severe academic infraction. Trigger this system strictly for genuine university-related emergencies.
+              <span className="font-semibold text-white">Genuine emergencies only:</span> Falsifying blood requests is a serious academic offence. Please use this system only for real university-related emergencies.
             </span>
           </div>
 
@@ -393,7 +393,7 @@ export default function RequestPortal({ currentUser, onSuccess }: RequestPortalP
             disabled={loading}
             className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-800 text-white font-bold py-3 px-6 rounded-xl text-sm transition shadow-lg shadow-red-950/60 flex items-center justify-center gap-2"
           >
-            {loading ? "Activating Smart Matching Pipeline..." : "Dispatch Emergency Request Alert"}
+            {loading ? "Sending alerts to donors..." : "Send Emergency Request"}
           </button>
         </form>
       )}

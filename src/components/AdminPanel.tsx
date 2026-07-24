@@ -222,7 +222,7 @@ export default function AdminPanel() {
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 gap-3">
           <RefreshCw className="w-8 h-8 text-red-500 animate-spin" />
-          <p className="text-xs font-mono text-gray-400">Compiling campus stats logs...</p>
+          <p className="text-xs font-mono text-gray-400">Loading campus stats...</p>
         </div>
       ) : (
         <div>
@@ -260,7 +260,7 @@ export default function AdminPanel() {
                     <Sparkles className="w-5 h-5 text-red-500" /> Campus Blood Group Reserves Status
                   </h3>
                   <p className="text-xs text-gray-400 mt-0.5">
-                    Live telemetry indicating safety thresholds based on active available donor rosters for each specific antigen.
+                    Live safety levels based on active, available donors for each blood group.
                   </p>
                 </div>
 
