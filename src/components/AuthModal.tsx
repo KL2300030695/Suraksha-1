@@ -1,14 +1,9 @@
 import { useState, useEffect, FormEvent, MouseEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut
-} from "firebase/auth";
-import { doc, setDoc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
-import { auth, db } from "../firebase";
+import { doc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "../firebase";
 import { BloodGroup, UserProfile, UserRole } from "../types";
-import { Shield, Sparkles, User, Mail, Lock, Phone, Calendar, Heart, GraduationCap, CheckCircle, AlertTriangle, Eye, EyeOff, ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { Droplet, Mail, Lock, Eye, EyeOff, ArrowLeft, ArrowRight, Check, AlertTriangle, ShieldCheck } from "lucide-react";
 
 interface AuthModalProps {
   onSuccess: (profile: UserProfile) => void;
@@ -52,86 +47,18 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
   const [gender, setGender] = useState("Male");
   const [dob, setDob] = useState("2004-06-15");
   const [lastDonation, setLastDonation] = useState("");
-  const [isEligible, setIsEligible] = useState(true);
+  const [isEligible] = useState(true);
   const [isAvailable, setIsAvailable] = useState(true);
-
-  // Demo Login accounts mapping
-  const DEMO_ACCOUNTS = [
-    {
-      name: "Prof. Rajesh Sharma",
-      role: "admin",
-      email: "rajesh.sharma@kluniversity.in",
-      bloodGroup: "O+",
-      uid: "admin-uid-123",
-      tag: "Administrator / Faculty"
-    },
-    {
-      name: "Aarav Mehta",
-      role: "student",
-      email: "aarav.mehta@kluniversity.in",
-      bloodGroup: "A+",
-      uid: "donor-uid-1",
-      tag: "Student Donor"
-    },
-    {
-      name: "Vikram Rathore",
-      role: "staff",
-      email: "vikram.r@kluniversity.in",
-      bloodGroup: "B+",
-      uid: "donor-uid-3",
-      tag: "Security Staff"
-    }
-  ];
-
-  const handleDemoLogin = async (demo: typeof DEMO_ACCOUNTS[0]) => {
-    setLoading(true);
-    setError(null);
-    try {
-      // Fetch the mock user profile directly from Firestore
-      const userDoc = await getDoc(doc(db, "users", demo.uid));
-      let profile: UserProfile;
-      if (userDoc.exists()) {
-        profile = userDoc.data() as UserProfile;
-      } else {
-        // Fallback: If not seeded yet, create a fresh simulation profile
-        profile = {
-          uid: demo.uid,
-          name: demo.name,
-          email: demo.email,
-          idCard: demo.role === "admin" ? "FAC-8890" : demo.role === "student" ? "STU-2024-0045" : "STF-4410",
-          role: demo.role as UserRole,
-          department: demo.role === "admin" ? "Computer Science & Engineering" : "Information Technology",
-          bloodGroup: demo.bloodGroup as BloodGroup,
-          phone: "+91 98765 43210",
-          gender: "Male",
-          dob: "2000-01-01",
-          isEligible: true,
-          isAvailable: true,
-          verified: true,
-          createdAt: new Date().toISOString()
-        };
-        await setDoc(doc(db, "users", demo.uid), profile);
-      }
-      localStorage.setItem("local_session_uid", profile.uid);
-      onSuccess(profile);
-    } catch (err: any) {
-      console.error(err);
-      setError("Failed to initialize Demo Session. " + err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      setError("Please fill in all email and password fields.");
+      setError("Please enter your email and password.");
       return;
     }
     setLoading(true);
     setError(null);
     try {
-      // Look up by email in Firestore (highly robust Sandbox Mode authentication)
       const usersRef = collection(db, "users");
       const q = query(usersRef, where("email", "==", email.trim().toLowerCase()));
       const querySnapshot = await getDocs(q);
@@ -144,31 +71,30 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
       }
 
       if (!profile) {
-        throw new Error("No campus account found with this email. Please register to create an account.");
+        throw new Error("No campus account found with this email. Please create an account first.");
       }
 
-      // If password protection is stored, check it
       if (profile._sandboxPassword && profile._sandboxPassword !== password) {
-        throw new Error("Incorrect password for this campus account.");
+        throw new Error("Incorrect password. Please try again.");
       }
 
       localStorage.setItem("local_session_uid", profile.uid);
       onSuccess(profile);
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "Invalid credentials. Please double check.");
+      setError(err.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Per-step validation so a stressed or first-time user gets focused, immediate feedback
-  // instead of a wall of errors after filling out the entire form.
+  // Per-step validation so a new user gets focused feedback instead of a
+  // wall of errors after filling out the whole form.
   const validateStep = (step: number): boolean => {
     if (step === 1) {
       const cleanEmail = email.trim().toLowerCase();
       if (!name || !cleanEmail || !password || !idCard) {
-        setError("Please complete your name, email, password, and ID card number.");
+        setError("Please complete your name, email, password, and ID.");
         return false;
       }
       if (!cleanEmail.includes("@")) {
@@ -191,9 +117,9 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
   };
 
   const goToNextStep = (e: MouseEvent) => {
-    // Defensively block any native submit activation — React can reuse this same
-    // DOM button node for the step-3 submit button, and the browser resolves a
-    // click's default action against the post-render element, not the one clicked.
+    // Block any native submit — React can reuse this same DOM button node for
+    // the step-3 submit button; the browser resolves default action against the
+    // post-render element, not the one clicked.
     e.preventDefault();
     if (validateStep(regStep)) {
       setRegStep((s) => (Math.min(3, s + 1) as 1 | 2 | 3));
@@ -210,12 +136,10 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
     setError(null);
 
     const cleanEmail = email.trim().toLowerCase();
-
     if (!cleanEmail.includes("@")) {
       setError("Please enter a valid email address.");
       return;
     }
-
     if (!name || !email || !password || !idCard || !phone) {
       setError("Please complete all registration fields.");
       return;
@@ -223,16 +147,14 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
 
     setLoading(true);
     try {
-      // Check if user already exists
       const usersRef = collection(db, "users");
       const q = query(usersRef, where("email", "==", email.trim().toLowerCase()));
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
-        throw new Error("A campus account with this email is already registered.");
+        throw new Error("An account with this email already exists.");
       }
 
-      // Generate a custom deterministic sandbox UID
       const uidEmail = email.trim().toLowerCase().replace(/[^a-zA-Z0-9]/g, "-");
       const uid = `sandbox-uid-${uidEmail}-${Date.now().toString().slice(-6)}`;
 
@@ -256,7 +178,6 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
         lastDonation: lastDonation ? lastDonation : null
       };
 
-      // Safeguard check: convert any remaining undefined fields to null
       Object.keys(profile).forEach(key => {
         if (profile[key] === undefined) {
           profile[key] = null;
@@ -268,118 +189,65 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
       onSuccess(profile);
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "Registration failed. Try again.");
+      setError(err.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const inputClass = "w-full bg-navy-dark/60 border border-white/10 focus:border-red-500 rounded-lg py-2 px-3 text-xs text-white placeholder-gray-500 focus:outline-none transition";
+  const labelClass = "block text-xs font-medium text-gray-400 mb-1.5";
+  const inputClass = "w-full bg-white/[0.03] border border-white/10 focus:border-red-500/60 rounded-xl py-2.5 px-3.5 text-sm text-white placeholder-gray-600 focus:outline-none transition";
+  const selectClass = "w-full bg-white/[0.03] border border-white/10 focus:border-red-500/60 rounded-xl py-2.5 px-3 text-sm text-white focus:outline-none transition";
 
   return (
-    <div className="w-full max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 bg-navy-light/40 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-md shadow-2xl">
-      {/* Left Column: Visual branding and emotional appeal */}
-      <div className="p-8 flex flex-col justify-between bg-gradient-to-br from-red-950/40 via-red-950/10 to-transparent border-r border-white/5">
-        <div>
-          <div className="inline-flex items-center gap-2 bg-red-600/10 text-red-500 px-3 py-1 rounded-full text-xs font-mono font-medium tracking-wider mb-6">
-            <Shield className="w-3.5 h-3.5" /> UNIVERSITY ACCESS ONLY
-          </div>
-          <h2 className="font-display text-3xl font-bold tracking-tight text-white mb-2">
-            Campus Protection <br />
-            <span className="text-red-500 font-extrabold text-4xl">SURAKSHA</span>
-          </h2>
-          <p className="text-gray-400 text-sm leading-relaxed mb-6">
-            Connecting students, professors, and staff to eliminate WhatsApp delay during critical medical situations. 100% verified campus blood donation network.
-          </p>
-
-          <div className="space-y-4">
-            <div className="flex gap-3">
-              <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-red-500 shrink-0">
-                <CheckCircle className="w-4 h-4" />
-              </div>
-              <div>
-                <h4 className="text-sm font-semibold text-white">Targeted Match Notifications</h4>
-                <p className="text-xs text-gray-400">Alerts only reach available campus members with matching blood groups.</p>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-red-500 shrink-0">
-                <GraduationCap className="w-4 h-4" />
-              </div>
-              <div>
-                <h4 className="text-sm font-semibold text-white">Verified Academic Profiles</h4>
-                <p className="text-xs text-gray-400">Strictly restricted to students, faculty, and administrative staff email credentials.</p>
-              </div>
-            </div>
-          </div>
+    <div className="w-full max-w-md mx-auto">
+      {/* Brand */}
+      <div className="flex flex-col items-center text-center mb-7">
+        <div className="w-12 h-12 rounded-2xl bg-red-600 flex items-center justify-center shadow-lg shadow-red-950/40 mb-4">
+          <Droplet className="w-6 h-6 text-white fill-white/90" />
         </div>
-
-        {/* Demo Mode Quick Access Grid */}
-        <div className="mt-8 border-t border-white/10 pt-6">
-          <div className="flex items-center gap-2 text-xs font-mono text-gray-400 mb-3">
-            <Sparkles className="w-3.5 h-3.5 text-yellow-500" />
-            <span>INSTANT DEMO SESSION LAUNCHERS:</span>
-          </div>
-          <div className="grid grid-cols-1 gap-2">
-            {DEMO_ACCOUNTS.map((demo) => (
-              <button
-                key={demo.uid}
-                type="button"
-                onClick={() => handleDemoLogin(demo)}
-                disabled={loading}
-                className="flex items-center justify-between p-2.5 rounded-lg bg-white/5 hover:bg-red-500/10 border border-white/10 hover:border-red-500/40 text-left transition text-xs group"
-              >
-                <div>
-                  <div className="font-medium text-white group-hover:text-red-400 transition">{demo.name}</div>
-                  <div className="text-[10px] text-gray-400">{demo.tag} ({demo.bloodGroup})</div>
-                </div>
-                <span className="px-2 py-0.5 rounded-full bg-white/5 text-[10px] font-mono group-hover:bg-red-500/25 group-hover:text-white text-gray-400 transition">
-                  Quick Login
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
+        <h1 className="font-display text-2xl font-bold text-white tracking-tight">Suraksha</h1>
+        <p className="text-sm text-gray-500 mt-1">Campus Emergency Blood Network</p>
       </div>
 
-      {/* Right Column: Auth Forms */}
-      <div className="p-8 flex flex-col justify-center">
+      {/* Card */}
+      <div className="bg-navy-light/40 border border-white/10 rounded-2xl p-6 sm:p-7">
         {error && (
-          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-xs flex items-start gap-2 animate-pulse">
+          <div className="mb-5 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs flex items-start gap-2">
             <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
         )}
 
         {!isRegistering ? (
-          /* Login Form */
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="mb-4">
-              <h3 className="font-display text-xl font-bold text-white mb-1">Welcome Back</h3>
-              <p className="text-xs text-gray-400">Access the campus network with your university account</p>
+          /* ---------------- LOGIN ---------------- */
+          <form onSubmit={handleLogin} className="space-y-5">
+            <div>
+              <h2 className="font-display text-xl font-bold text-white">Welcome back</h2>
+              <p className="text-sm text-gray-500 mt-0.5">Log in to your campus account.</p>
             </div>
 
             <div>
-              <label className="block text-xs font-mono text-gray-400 mb-1.5 uppercase tracking-wider">University Email (or any email for demo)</label>
+              <label className={labelClass}>Email</label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-500">
                   <Mail className="w-4 h-4" />
                 </span>
                 <input
                   type="email"
-                  placeholder="name@kluniversity.in (or your email)"
+                  placeholder="you@kluniversity.in"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-navy-dark/60 border border-white/10 focus:border-red-500 rounded-lg py-2 pl-10 pr-4 text-sm text-white placeholder-gray-500 focus:outline-none transition"
+                  className={`${inputClass} pl-10`}
+                  autoFocus
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-mono text-gray-400 mb-1.5 uppercase tracking-wider">Password</label>
+              <label className={labelClass}>Password</label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-500">
                   <Lock className="w-4 h-4" />
                 </span>
                 <input
@@ -387,12 +255,12 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-navy-dark/60 border border-white/10 focus:border-red-500 rounded-lg py-2 pl-10 pr-10 text-sm text-white placeholder-gray-500 focus:outline-none transition"
+                  className={`${inputClass} pl-10 pr-10`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-300 transition"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-500 hover:text-gray-300 transition"
                   tabIndex={-1}
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
@@ -404,132 +272,81 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-800 text-white font-medium py-2 px-4 rounded-lg text-sm transition shadow-lg shadow-red-950/50 flex justify-center items-center gap-2"
+              className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-800 disabled:text-gray-500 text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition"
             >
-              {loading ? "Signing in..." : "Log In"}
+              {loading ? "Signing in…" : "Log in"}
             </button>
-
-            <div className="text-center mt-6">
-              <span className="text-xs text-gray-400">Need to register a new profile? </span>
-              <button
-                type="button"
-                onClick={() => navigate("/register")}
-                className="text-xs text-red-400 hover:text-red-300 font-semibold underline transition"
-              >
-                Create Account
-              </button>
-            </div>
           </form>
         ) : (
-          /* Multi-Step Campus Registration Form */
-          <div className="space-y-4">
+          /* ---------------- REGISTRATION ---------------- */
+          <div className="space-y-5">
             <div>
-              <h3 className="font-display text-xl font-bold text-white mb-1">Verify Campus Profile</h3>
-              <p className="text-xs text-gray-400">Create your official University Emergency card in three quick steps.</p>
+              <h2 className="font-display text-xl font-bold text-white">Create your account</h2>
+              <p className="text-sm text-gray-500 mt-0.5">Join the campus network in three quick steps.</p>
             </div>
 
-            {/* Step Progress Indicator */}
+            {/* Step progress */}
             <div className="flex items-center gap-2">
               {REGISTER_STEPS.map((step, idx) => (
                 <div key={step.id} className="flex items-center flex-1 last:flex-none">
                   <div className="flex flex-col items-center gap-1.5">
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-mono font-bold border-2 transition-colors ${
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-semibold border transition-colors ${
                       regStep === step.id
                         ? "bg-red-600 border-red-500 text-white"
                         : regStep > step.id
-                        ? "bg-red-600/20 border-red-500/50 text-red-400"
-                        : "bg-transparent border-white/10 text-gray-500"
+                        ? "bg-red-600/15 border-red-500/40 text-red-400"
+                        : "bg-transparent border-white/10 text-gray-600"
                     }`}>
                       {regStep > step.id ? <Check className="w-3.5 h-3.5" /> : step.id}
                     </div>
-                    <span className={`text-[9px] font-mono uppercase tracking-wider ${regStep === step.id ? "text-red-400 font-bold" : "text-gray-500"}`}>
+                    <span className={`text-[10px] ${regStep === step.id ? "text-gray-300 font-medium" : "text-gray-600"}`}>
                       {step.label}
                     </span>
                   </div>
                   {idx < REGISTER_STEPS.length - 1 && (
-                    <div className={`flex-1 h-0.5 mx-1.5 mb-4 rounded transition-colors ${regStep > step.id ? "bg-red-500/50" : "bg-white/10"}`} />
+                    <div className={`flex-1 h-px mx-2 mb-4 transition-colors ${regStep > step.id ? "bg-red-500/40" : "bg-white/10"}`} />
                   )}
                 </div>
               ))}
             </div>
 
             <form onSubmit={handleRegister} className="space-y-4">
-
-              {/* STEP 1: Account essentials */}
+              {/* STEP 1 */}
               {regStep === 1 && (
-                <div className="space-y-3.5">
+                <div className="space-y-4">
                   <div>
-                    <label className="block text-[10px] font-mono text-gray-400 uppercase mb-1">Full Name</label>
-                    <input
-                      type="text"
-                      placeholder="Aarav Mehta"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className={inputClass}
-                      required
-                    />
+                    <label className={labelClass}>Full name</label>
+                    <input type="text" placeholder="Aarav Mehta" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} autoFocus />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-mono text-gray-400 uppercase mb-1">University Email</label>
-                    <input
-                      type="email"
-                      placeholder="name@kluniversity.in"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className={inputClass}
-                      required
-                    />
-                    <span className="text-[9px] text-gray-500 mt-1 block">Never shown publicly — only visible to you.</span>
+                    <label className={labelClass}>University email</label>
+                    <input type="email" placeholder="you@kluniversity.in" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[10px] font-mono text-gray-400 uppercase mb-1">Password</label>
+                      <label className={labelClass}>Password</label>
                       <div className="relative">
-                        <input
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Min 6 characters"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          className={`${inputClass} pr-9`}
-                          required
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword((v) => !v)}
-                          className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-gray-500 hover:text-gray-300 transition"
-                          tabIndex={-1}
-                          aria-label={showPassword ? "Hide password" : "Show password"}
-                        >
+                        <input type={showPassword ? "text" : "password"} placeholder="Min 6 chars" value={password} onChange={(e) => setPassword(e.target.value)} className={`${inputClass} pr-9`} />
+                        <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-300 transition" tabIndex={-1} aria-label={showPassword ? "Hide password" : "Show password"}>
                           {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                         </button>
                       </div>
                     </div>
                     <div>
-                      <label className="block text-[10px] font-mono text-gray-400 uppercase mb-1">Student/Employee ID</label>
-                      <input
-                        type="text"
-                        placeholder="STU-2024-0045"
-                        value={idCard}
-                        onChange={(e) => setIdCard(e.target.value)}
-                        className={inputClass}
-                        required
-                      />
+                      <label className={labelClass}>Student / Staff ID</label>
+                      <input type="text" placeholder="STU-2024-0045" value={idCard} onChange={(e) => setIdCard(e.target.value)} className={inputClass} />
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* STEP 2: Role, blood group, contact */}
+              {/* STEP 2 */}
               {regStep === 2 && (
-                <div className="space-y-3.5">
+                <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[10px] font-mono text-gray-400 uppercase mb-1">Role</label>
-                      <select
-                        value={role}
-                        onChange={(e) => setRole(e.target.value as UserRole)}
-                        className={inputClass}
-                      >
+                      <label className={labelClass}>Role</label>
+                      <select value={role} onChange={(e) => setRole(e.target.value as UserRole)} className={selectClass}>
                         <option value="student">Student</option>
                         <option value="faculty">Faculty</option>
                         <option value="staff">Staff</option>
@@ -537,30 +354,23 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
                       </select>
                     </div>
                     <div>
-                      <label className="block text-[10px] font-mono text-gray-400 uppercase mb-1">Phone Number</label>
-                      <input
-                        type="text"
-                        placeholder="+91 XXXXX XXXXX"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className={inputClass}
-                        required
-                      />
+                      <label className={labelClass}>Phone</label>
+                      <input type="text" placeholder="+91 XXXXX XXXXX" value={phone} onChange={(e) => setPhone(e.target.value)} className={inputClass} />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-mono text-gray-400 uppercase mb-1">Blood Group</label>
-                    <div className="grid grid-cols-4 gap-1.5">
+                    <label className={labelClass}>Blood group</label>
+                    <div className="grid grid-cols-4 gap-2">
                       {BLOOD_GROUPS.map((bg) => (
                         <button
                           key={bg}
                           type="button"
                           onClick={() => setBloodGroup(bg)}
-                          className={`py-2 rounded-lg border font-display font-extrabold text-xs transition ${
+                          className={`py-2 rounded-lg border font-display font-bold text-sm transition ${
                             bloodGroup === bg
-                              ? "bg-red-600 text-white border-red-500 shadow-md shadow-red-950/35"
-                              : "bg-navy-dark/60 text-gray-400 border-white/5 hover:border-white/10"
+                              ? "bg-red-600 text-white border-red-500"
+                              : "bg-white/[0.03] text-gray-400 border-white/10 hover:border-white/20"
                           }`}
                         >
                           {bg}
@@ -570,29 +380,18 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-mono text-gray-400 uppercase mb-1">Department</label>
-                    <input
-                      type="text"
-                      placeholder="CSE / IT / ME"
-                      value={department}
-                      onChange={(e) => setDepartment(e.target.value)}
-                      className={inputClass}
-                      required
-                    />
+                    <label className={labelClass}>Department</label>
+                    <input type="text" placeholder="Computer Science & Engineering" value={department} onChange={(e) => setDepartment(e.target.value)} className={inputClass} />
                   </div>
 
                   {role === "student" && (
                     <div>
-                      <label className="block text-[10px] font-mono text-gray-400 uppercase mb-1">Academic Batch/Year</label>
-                      <select
-                        value={year}
-                        onChange={(e) => setYear(e.target.value)}
-                        className={inputClass}
-                      >
-                        <option value="1st Year">1st Year (Freshman)</option>
-                        <option value="2nd Year">2nd Year (Sophomore)</option>
-                        <option value="3rd Year">3rd Year (Junior)</option>
-                        <option value="4th Year">4th Year (Senior)</option>
+                      <label className={labelClass}>Academic year</label>
+                      <select value={year} onChange={(e) => setYear(e.target.value)} className={selectClass}>
+                        <option value="1st Year">1st Year</option>
+                        <option value="2nd Year">2nd Year</option>
+                        <option value="3rd Year">3rd Year</option>
+                        <option value="4th Year">4th Year</option>
                         <option value="Postgraduate">Postgraduate</option>
                       </select>
                     </div>
@@ -600,76 +399,52 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
                 </div>
               )}
 
-              {/* STEP 3: Health & availability */}
+              {/* STEP 3 */}
               {regStep === 3 && (
-                <div className="space-y-3.5">
+                <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[10px] font-mono text-gray-400 uppercase mb-1">Gender</label>
-                      <select
-                        value={gender}
-                        onChange={(e) => setGender(e.target.value)}
-                        className={inputClass}
-                      >
+                      <label className={labelClass}>Gender</label>
+                      <select value={gender} onChange={(e) => setGender(e.target.value)} className={selectClass}>
                         <option value="Male">Male</option>
                         <option value="Female">Female</option>
                         <option value="Other">Other</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-[10px] font-mono text-gray-400 uppercase mb-1">Date of Birth</label>
-                      <input
-                        type="date"
-                        value={dob}
-                        onChange={(e) => setDob(e.target.value)}
-                        className={inputClass}
-                        required
-                      />
+                      <label className={labelClass}>Date of birth</label>
+                      <input type="date" value={dob} onChange={(e) => setDob(e.target.value)} className={selectClass} />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-mono text-gray-400 uppercase mb-1">Last Donation Date (optional)</label>
-                    <input
-                      type="date"
-                      value={lastDonation}
-                      onChange={(e) => setLastDonation(e.target.value)}
-                      className={inputClass}
-                    />
-                    <span className="text-[9px] text-gray-500 mt-1 block">Leave empty if you haven't donated yet — we'll track your 90-day eligibility automatically.</span>
+                    <label className={labelClass}>Last donation date <span className="text-gray-600">(optional)</span></label>
+                    <input type="date" value={lastDonation} onChange={(e) => setLastDonation(e.target.value)} className={selectClass} />
                   </div>
 
-                  <label className="flex items-center gap-2.5 p-3 rounded-lg bg-white/[0.02] border border-white/5 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={isAvailable}
-                      onChange={(e) => setIsAvailable(e.target.checked)}
-                      className="w-4 h-4 accent-red-600 rounded bg-navy-dark border-white/10"
-                    />
+                  <label className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/10 cursor-pointer">
+                    <input type="checkbox" checked={isAvailable} onChange={(e) => setIsAvailable(e.target.checked)} className="w-4 h-4 accent-red-600 rounded" />
                     <div>
-                      <span className="text-xs font-medium text-gray-200 block">I'm available to donate right now</span>
-                      <span className="text-[10px] text-gray-500">You can toggle this anytime from your dashboard.</span>
+                      <span className="text-sm text-gray-200 block">I'm available to donate</span>
+                      <span className="text-xs text-gray-500">You can change this anytime.</span>
                     </div>
                   </label>
 
-                  <div className="p-2.5 bg-red-950/20 border border-red-500/15 rounded-lg text-[11px] text-gray-300">
-                    <span className="font-semibold text-red-400 flex items-center gap-1 mb-0.5">
-                      <Heart className="w-3 h-3" /> Medical Declaration
-                    </span>
-                    By signing up, you declare that you satisfy standard blood donation weight (45kg+), Hb level (&gt;12.5), and have no recent surgeries or blood transfusions.
-                  </div>
+                  <p className="text-xs text-gray-500 leading-relaxed">
+                    By registering, you confirm you meet standard donation criteria (45kg+, healthy Hb, no recent surgery or transfusion).
+                  </p>
                 </div>
               )}
 
-              {/* Step navigation footer */}
+              {/* Step navigation */}
               <div className="flex items-center gap-3 pt-1">
                 {regStep > 1 && (
                   <button
                     type="button"
                     onClick={goToPrevStep}
-                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-white/10 text-gray-300 hover:bg-white/5 text-xs font-mono font-bold transition"
+                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-white/10 text-gray-300 hover:bg-white/5 text-sm font-medium transition"
                   >
-                    <ArrowLeft className="w-3.5 h-3.5" /> Back
+                    <ArrowLeft className="w-4 h-4" /> Back
                   </button>
                 )}
 
@@ -678,35 +453,47 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
                     key="continue-btn"
                     type="button"
                     onClick={goToNextStep}
-                    className="flex-1 flex items-center justify-center gap-1.5 bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 px-4 rounded-lg text-xs font-mono font-bold uppercase tracking-wider transition shadow-lg shadow-red-950/50"
+                    className="flex-1 flex items-center justify-center gap-1.5 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition"
                   >
-                    Continue <ArrowRight className="w-3.5 h-3.5" />
+                    Continue <ArrowRight className="w-4 h-4" />
                   </button>
                 ) : (
                   <button
                     key="submit-btn"
                     type="submit"
                     disabled={loading}
-                    className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-800 text-white font-medium py-2.5 px-4 rounded-lg text-xs font-mono font-bold uppercase tracking-wider transition shadow-lg shadow-red-950/50 flex justify-center items-center gap-2"
+                    className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-800 disabled:text-gray-500 text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition"
                   >
-                    {loading ? "Creating your account..." : "Complete Registration"}
+                    {loading ? "Creating account…" : "Create account"}
                   </button>
                 )}
               </div>
             </form>
-
-            <div className="text-center pt-1">
-              <span className="text-xs text-gray-400">Already registered? </span>
-              <button
-                type="button"
-                onClick={() => navigate("/login")}
-                className="text-xs text-red-400 hover:text-red-300 font-semibold underline transition"
-              >
-                Log In
-              </button>
-            </div>
           </div>
         )}
+      </div>
+
+      {/* Switch mode */}
+      <p className="text-center text-sm text-gray-500 mt-5">
+        {!isRegistering ? (
+          <>New to Suraksha?{" "}
+            <button onClick={() => navigate("/register")} className="text-red-400 hover:text-red-300 font-medium transition">
+              Create an account
+            </button>
+          </>
+        ) : (
+          <>Already have an account?{" "}
+            <button onClick={() => navigate("/login")} className="text-red-400 hover:text-red-300 font-medium transition">
+              Log in
+            </button>
+          </>
+        )}
+      </p>
+
+      {/* Trust line */}
+      <div className="flex items-center justify-center gap-1.5 text-[11px] text-gray-600 mt-4">
+        <ShieldCheck className="w-3.5 h-3.5" />
+        <span>Secure access · Verified KL University members only</span>
       </div>
     </div>
   );
