@@ -156,7 +156,7 @@ function AppContent() {
             <Navigate to="/dashboard" replace />
           ) : (
             <div className="min-h-screen bg-navy-dark flex items-center justify-center p-4">
-              <div className="relative w-full max-w-4xl">
+              <div className="relative w-full max-w-md">
                 <AuthModal onSuccess={handleAuthSuccess} initialMode="login" />
               </div>
             </div>
@@ -171,7 +171,7 @@ function AppContent() {
             <Navigate to="/dashboard" replace />
           ) : (
             <div className="min-h-screen bg-navy-dark flex items-center justify-center p-4">
-              <div className="relative w-full max-w-4xl">
+              <div className="relative w-full max-w-md">
                 <AuthModal onSuccess={handleAuthSuccess} initialMode="register" />
               </div>
             </div>
