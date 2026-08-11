@@ -66,24 +66,8 @@ function AppContent() {
         }
         setLoading(false);
       } else {
-        // If there's no active Firebase user, check if there's a sandbox local session
-        const localUid = localStorage.getItem("local_session_uid");
-        if (localUid) {
-          try {
-            const docSnap = await getDoc(doc(db, "users", localUid));
-            if (docSnap.exists()) {
-              setCurrentUser(docSnap.data() as UserProfile);
-            } else {
-              localStorage.removeItem("local_session_uid");
-              setCurrentUser(null);
-            }
-          } catch (error) {
-            console.error("Error loading sandbox session profile:", error);
-            setCurrentUser(null);
-          }
-        } else {
-          setCurrentUser(null);
-        }
+        // No active Firebase Auth session.
+        setCurrentUser(null);
         setLoading(false);
       }
     });
@@ -104,7 +88,6 @@ function AppContent() {
 
   const handleLogout = async () => {
     try {
-      localStorage.removeItem("local_session_uid");
       await signOut(auth);
       setCurrentUser(null);
       setActiveTab("dashboard");

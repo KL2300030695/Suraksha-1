@@ -19,7 +19,6 @@ export interface UserProfile {
   isAvailable: boolean;
   verified: boolean;
   createdAt: string;
-  _sandboxPassword?: string;
 }
 
 export type RequestStatus = 'created' | 'searching' | 'accepted' | 'in_progress' | 'completed' | 'closed';
