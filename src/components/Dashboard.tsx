@@ -1592,16 +1592,14 @@ export default function Dashboard({ currentUser: initialUser, onLogout }: Dashbo
                     </div>
                   </div>
 
-                  {/* Subsection 3: Credentials Ledger */}
+                  {/* Subsection 3: Account */}
                   <div className="space-y-4">
-                    <h3 className="text-xs font-mono font-bold text-gray-400 uppercase tracking-wider border-b border-white/5 pb-1">Sandbox System Credentials</h3>
-                    
+                    <h3 className="text-xs font-mono font-bold text-gray-400 uppercase tracking-wider border-b border-white/5 pb-1">Account</h3>
+
                     <div className="p-4 rounded-xl bg-black/40 border border-white/5 space-y-2 text-xs font-mono text-gray-400">
-                      <div><span className="text-slate-300">Auth Method:</span> Sandbox Credential Session</div>
-                      <div><span className="text-slate-300">UID Signature:</span> <span className="text-red-400 select-all">{currentUser.uid}</span></div>
-                      {currentUser._sandboxPassword && (
-                        <div><span className="text-slate-300">Emergency Security Code:</span> <span className="text-slate-200 select-all">{currentUser._sandboxPassword}</span></div>
-                      )}
+                      <div><span className="text-slate-300">Sign-in method:</span> University email &amp; password</div>
+                      <div><span className="text-slate-300">Account ID:</span> <span className="text-red-400 select-all">{currentUser.uid}</span></div>
+                      <div><span className="text-slate-300">Email:</span> <span className="text-slate-200 select-all">{currentUser.email}</span></div>
                     </div>
                   </div>
 

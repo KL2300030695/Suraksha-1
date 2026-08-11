@@ -1,9 +1,40 @@
 import { useState, useEffect, FormEvent, MouseEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { doc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
-import { db } from "../firebase";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendEmailVerification,
+  sendPasswordResetEmail,
+} from "firebase/auth";
+import { auth, db } from "../firebase";
 import { BloodGroup, UserProfile, UserRole } from "../types";
-import { Droplet, Mail, Lock, Eye, EyeOff, ArrowLeft, ArrowRight, Check, AlertTriangle, ShieldCheck } from "lucide-react";
+import { Droplet, Mail, Lock, Eye, EyeOff, ArrowLeft, ArrowRight, Check, AlertTriangle, ShieldCheck, MailCheck } from "lucide-react";
+
+// Turn Firebase Auth error codes into friendly, human messages.
+function authErrorMessage(err: any): string {
+  const code = err?.code as string | undefined;
+  switch (code) {
+    case "auth/invalid-email":
+      return "That email address doesn't look right.";
+    case "auth/user-not-found":
+    case "auth/invalid-credential":
+    case "auth/wrong-password":
+      return "Incorrect email or password. Please try again.";
+    case "auth/email-already-in-use":
+      return "An account with this email already exists. Try logging in instead.";
+    case "auth/weak-password":
+      return "Password is too weak — please use at least 6 characters.";
+    case "auth/too-many-requests":
+      return "Too many attempts. Please wait a moment and try again.";
+    case "auth/network-request-failed":
+      return "Network error. Please check your connection and try again.";
+    case "auth/operation-not-allowed":
+      return "Email sign-in isn't enabled yet. Please contact the campus admin.";
+    default:
+      return err?.message || "Something went wrong. Please try again.";
+  }
+}
 
 interface AuthModalProps {
   onSuccess: (profile: UserProfile) => void;
@@ -11,6 +42,10 @@ interface AuthModalProps {
 }
 
 const BLOOD_GROUPS: BloodGroup[] = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+
+// Suraksha is exclusive to KL University — only official university emails are accepted.
+const UNIVERSITY_DOMAIN = "@kluniversity.in";
+const isUniversityEmail = (email: string) => email.trim().toLowerCase().endsWith(UNIVERSITY_DOMAIN);
 
 const REGISTER_STEPS = [
   { id: 1, label: "Account" },
@@ -26,11 +61,22 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
   useEffect(() => {
     setIsRegistering(initialMode === "register");
     setRegStep(1);
+    setView("login");
+    setResetSent(false);
+    setRegisteredProfile(null);
+    setError(null);
   }, [initialMode]);
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  // Login screen sub-view: normal login vs. forgot-password reset.
+  const [view, setView] = useState<"login" | "reset">("login");
+  const [resetSent, setResetSent] = useState(false);
+  // After a successful registration we show a "verify your email" confirmation
+  // instead of dropping the user straight into the app.
+  const [registeredProfile, setRegisteredProfile] = useState<UserProfile | null>(null);
 
   // Common Form State
   const [email, setEmail] = useState("");
@@ -56,33 +102,44 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
       setError("Please enter your email and password.");
       return;
     }
+    if (!isUniversityEmail(email)) {
+      setError(`Please use your university email (ending in ${UNIVERSITY_DOMAIN}).`);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
-      const usersRef = collection(db, "users");
-      const q = query(usersRef, where("email", "==", email.trim().toLowerCase()));
-      const querySnapshot = await getDocs(q);
+      const cred = await signInWithEmailAndPassword(auth, email.trim().toLowerCase(), password);
 
-      let profile: UserProfile | null = null;
-      if (!querySnapshot.empty) {
-        querySnapshot.forEach((docSnap) => {
-          profile = docSnap.data() as UserProfile;
-        });
+      // Load the matching campus profile stored under the Auth UID.
+      const snap = await getDoc(doc(db, "users", cred.user.uid));
+      if (!snap.exists()) {
+        throw new Error("We couldn't find your campus profile. Please contact the admin.");
       }
-
-      if (!profile) {
-        throw new Error("No campus account found with this email. Please create an account first.");
-      }
-
-      if (profile._sandboxPassword && profile._sandboxPassword !== password) {
-        throw new Error("Incorrect password. Please try again.");
-      }
-
-      localStorage.setItem("local_session_uid", profile.uid);
-      onSuccess(profile);
+      onSuccess(snap.data() as UserProfile);
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "Something went wrong. Please try again.");
+      setError(authErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Forgot-password: send a Firebase reset email.
+  const handleResetPassword = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!isUniversityEmail(email)) {
+      setError(`Please enter your university email (ending in ${UNIVERSITY_DOMAIN}).`);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      await sendPasswordResetEmail(auth, email.trim().toLowerCase());
+      setResetSent(true);
+    } catch (err: any) {
+      console.error(err);
+      setError(authErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -97,8 +154,8 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
         setError("Please complete your name, email, password, and ID.");
         return false;
       }
-      if (!cleanEmail.includes("@")) {
-        setError("Please enter a valid email address.");
+      if (!isUniversityEmail(cleanEmail)) {
+        setError(`Only KL University emails (${UNIVERSITY_DOMAIN}) are allowed.`);
         return false;
       }
       if (password.length < 6) {
@@ -136,8 +193,8 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
     setError(null);
 
     const cleanEmail = email.trim().toLowerCase();
-    if (!cleanEmail.includes("@")) {
-      setError("Please enter a valid email address.");
+    if (!isUniversityEmail(cleanEmail)) {
+      setError(`Only KL University emails (${UNIVERSITY_DOMAIN}) are allowed.`);
       return;
     }
     if (!name || !email || !password || !idCard || !phone) {
@@ -147,49 +204,49 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
 
     setLoading(true);
     try {
-      const usersRef = collection(db, "users");
-      const q = query(usersRef, where("email", "==", email.trim().toLowerCase()));
-      const querySnapshot = await getDocs(q);
+      // 1. Create the real Firebase Auth account (password is hashed by Firebase).
+      const cred = await createUserWithEmailAndPassword(auth, cleanEmail, password);
 
-      if (!querySnapshot.empty) {
-        throw new Error("An account with this email already exists.");
+      // 2. Send the verification email.
+      try {
+        await sendEmailVerification(cred.user);
+      } catch (verifyErr) {
+        // Non-fatal: the account exists; they can re-request verification later.
+        console.error("Could not send verification email:", verifyErr);
       }
 
-      const uidEmail = email.trim().toLowerCase().replace(/[^a-zA-Z0-9]/g, "-");
-      const uid = `sandbox-uid-${uidEmail}-${Date.now().toString().slice(-6)}`;
-
+      // 3. Store the campus profile in Firestore, keyed by the Auth UID.
+      const uid = cred.user.uid;
       const profile: any = {
-        uid: uid ?? "",
-        name: name ?? "",
-        email: email.trim().toLowerCase(),
-        idCard: idCard ?? "",
-        role: role ?? "student",
-        department: department ?? "",
-        bloodGroup: bloodGroup ?? "O+",
-        phone: phone ?? "",
-        gender: gender ?? "Male",
-        dob: dob ?? "",
+        uid,
+        name,
+        email: cleanEmail,
+        idCard,
+        role,
+        department,
+        bloodGroup,
+        phone,
+        gender,
+        dob: dob || null,
         isEligible: isEligible !== undefined ? isEligible : true,
         isAvailable: isAvailable !== undefined ? isAvailable : true,
-        verified: role === "admin" ? true : false,
+        verified: role === "admin",
         createdAt: new Date().toISOString(),
-        _sandboxPassword: password ?? "",
         year: (role === "student" && year) ? year : null,
-        lastDonation: lastDonation ? lastDonation : null
+        lastDonation: lastDonation || null,
       };
 
-      Object.keys(profile).forEach(key => {
-        if (profile[key] === undefined) {
-          profile[key] = null;
-        }
+      Object.keys(profile).forEach((key) => {
+        if (profile[key] === undefined) profile[key] = null;
       });
 
       await setDoc(doc(db, "users", uid), profile);
-      localStorage.setItem("local_session_uid", uid);
-      onSuccess(profile);
+
+      // 4. Show the "verify your email" confirmation before entering the app.
+      setRegisteredProfile(profile as UserProfile);
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "Registration failed. Please try again.");
+      setError(authErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -219,7 +276,92 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
           </div>
         )}
 
-        {!isRegistering ? (
+        {registeredProfile ? (
+          /* ---------------- EMAIL VERIFICATION NOTICE ---------------- */
+          <div className="text-center space-y-4 py-2">
+            <div className="w-12 h-12 rounded-2xl bg-green-600/15 border border-green-500/30 flex items-center justify-center mx-auto">
+              <MailCheck className="w-6 h-6 text-green-400" />
+            </div>
+            <div>
+              <h2 className="font-display text-xl font-bold text-white">Verify your email</h2>
+              <p className="text-sm text-gray-500 mt-1">
+                We've sent a verification link to{" "}
+                <span className="text-gray-300 font-medium">{registeredProfile.email}</span>. Please confirm it to secure your account.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => onSuccess(registeredProfile)}
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition"
+            >
+              Continue to dashboard
+            </button>
+            <p className="text-xs text-gray-600">
+              Didn't get it? Check your spam folder — the link can take a minute to arrive.
+            </p>
+          </div>
+        ) : !isRegistering ? (
+          view === "reset" ? (
+            /* ---------------- FORGOT PASSWORD ---------------- */
+            resetSent ? (
+              <div className="text-center space-y-4 py-2">
+                <div className="w-12 h-12 rounded-2xl bg-green-600/15 border border-green-500/30 flex items-center justify-center mx-auto">
+                  <MailCheck className="w-6 h-6 text-green-400" />
+                </div>
+                <div>
+                  <h2 className="font-display text-xl font-bold text-white">Check your email</h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    If an account exists for{" "}
+                    <span className="text-gray-300 font-medium">{email.trim().toLowerCase()}</span>, a password reset link is on its way.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setView("login"); setResetSent(false); setError(null); }}
+                  className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-gray-200 font-semibold py-2.5 px-4 rounded-xl text-sm transition"
+                >
+                  Back to log in
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleResetPassword} className="space-y-5">
+                <div>
+                  <h2 className="font-display text-xl font-bold text-white">Reset your password</h2>
+                  <p className="text-sm text-gray-500 mt-0.5">Enter your university email and we'll send a reset link.</p>
+                </div>
+                <div>
+                  <label className={labelClass}>Email</label>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-500">
+                      <Mail className="w-4 h-4" />
+                    </span>
+                    <input
+                      type="email"
+                      placeholder="you@kluniversity.in"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className={`${inputClass} pl-10`}
+                      autoFocus
+                    />
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-800 disabled:text-gray-500 text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition"
+                >
+                  {loading ? "Sending…" : "Send reset link"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setView("login"); setError(null); }}
+                  className="w-full text-center text-sm text-gray-500 hover:text-gray-300 transition"
+                >
+                  Back to log in
+                </button>
+              </form>
+            )
+          ) : (
           /* ---------------- LOGIN ---------------- */
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
@@ -276,7 +418,16 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
             >
               {loading ? "Signing in…" : "Log in"}
             </button>
+
+            <button
+              type="button"
+              onClick={() => { setView("reset"); setResetSent(false); setError(null); }}
+              className="w-full text-center text-sm text-gray-500 hover:text-red-400 transition"
+            >
+              Forgot password?
+            </button>
           </form>
+          )
         ) : (
           /* ---------------- REGISTRATION ---------------- */
           <div className="space-y-5">
@@ -321,6 +472,7 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
                   <div>
                     <label className={labelClass}>University email</label>
                     <input type="email" placeholder="you@kluniversity.in" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} />
+                    <p className="text-[11px] text-gray-600 mt-1.5">Only official {UNIVERSITY_DOMAIN} emails are accepted.</p>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
@@ -474,21 +626,23 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
       </div>
 
       {/* Switch mode */}
-      <p className="text-center text-sm text-gray-500 mt-5">
-        {!isRegistering ? (
-          <>New to Suraksha?{" "}
-            <button onClick={() => navigate("/register")} className="text-red-400 hover:text-red-300 font-medium transition">
-              Create an account
-            </button>
-          </>
-        ) : (
-          <>Already have an account?{" "}
-            <button onClick={() => navigate("/login")} className="text-red-400 hover:text-red-300 font-medium transition">
-              Log in
-            </button>
-          </>
-        )}
-      </p>
+      {!registeredProfile && view === "login" && (
+        <p className="text-center text-sm text-gray-500 mt-5">
+          {!isRegistering ? (
+            <>New to Suraksha?{" "}
+              <button onClick={() => navigate("/register")} className="text-red-400 hover:text-red-300 font-medium transition">
+                Create an account
+              </button>
+            </>
+          ) : (
+            <>Already have an account?{" "}
+              <button onClick={() => navigate("/login")} className="text-red-400 hover:text-red-300 font-medium transition">
+                Log in
+              </button>
+            </>
+          )}
+        </p>
+      )}
 
       {/* Trust line */}
       <div className="flex items-center justify-center gap-1.5 text-[11px] text-gray-600 mt-4">
