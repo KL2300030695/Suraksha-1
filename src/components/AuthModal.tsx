@@ -125,18 +125,34 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
     }
   };
 
-  // Forgot-password: send a Firebase reset email.
+  // Forgot-password: send the reset email through the Brevo serverless endpoint,
+  // falling back to Firebase's own email if that endpoint isn't available (e.g. local dev).
   const handleResetPassword = async (e: FormEvent) => {
     e.preventDefault();
-    if (!isUniversityEmail(email)) {
+    const clean = email.trim().toLowerCase();
+    if (!isUniversityEmail(clean)) {
       setError(`Please enter your university email (ending in ${UNIVERSITY_DOMAIN}).`);
       return;
     }
     setLoading(true);
     setError(null);
     try {
-      await sendPasswordResetEmail(auth, email.trim().toLowerCase());
-      setResetSent(true);
+      const resp = await fetch("/api/send-password-reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: clean }),
+      }).catch(() => null);
+
+      if (resp && resp.ok) {
+        setResetSent(true);
+      } else if (resp && resp.status !== 404) {
+        const data = await resp.json().catch(() => ({}));
+        throw new Error(data.error || "Could not send the reset email.");
+      } else {
+        // Endpoint unavailable (local dev / offline) — use Firebase's built-in email.
+        await sendPasswordResetEmail(auth, clean);
+        setResetSent(true);
+      }
     } catch (err: any) {
       console.error(err);
       setError(authErrorMessage(err));
@@ -207,9 +223,17 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
       // 1. Create the real Firebase Auth account (password is hashed by Firebase).
       const cred = await createUserWithEmailAndPassword(auth, cleanEmail, password);
 
-      // 2. Send the verification email.
+      // 2. Send the verification email through the Brevo endpoint, falling back to
+      // Firebase's own email if the endpoint isn't available (e.g. local dev).
       try {
-        await sendEmailVerification(cred.user);
+        const resp = await fetch("/api/send-verification", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: cleanEmail }),
+        }).catch(() => null);
+        if (!resp || !resp.ok) {
+          await sendEmailVerification(cred.user);
+        }
       } catch (verifyErr) {
         // Non-fatal: the account exists; they can re-request verification later.
         console.error("Could not send verification email:", verifyErr);
