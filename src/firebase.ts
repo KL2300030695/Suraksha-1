@@ -1,29 +1,29 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { initializeFirestore, doc, getDocFromServer } from "firebase/firestore";
+import { getFirestore, doc, getDocFromServer } from "firebase/firestore";
 
 const firebaseConfig = {
-  projectId: "aerobic-overview-b5jvd",
-  appId: "1:384360357216:web:35c718be02cc0f90309205",
-  apiKey: "AIzaSyC57dMh_F50WssqH2goAffxlSQfdDbVIAQ",
-  authDomain: "aerobic-overview-b5jvd.firebaseapp.com",
-  storageBucket: "aerobic-overview-b5jvd.firebasestorage.app",
-  messagingSenderId: "384360357216",
+  apiKey: "AIzaSyAWvTomk6THqI9LJ6uj5-bJLRnGrtz9v68",
+  authDomain: "suraksha-5a8c0.firebaseapp.com",
+  projectId: "suraksha-5a8c0",
+  storageBucket: "suraksha-5a8c0.firebasestorage.app",
+  messagingSenderId: "455957441732",
+  appId: "1:455957441732:web:90fbfeb249a622ececad91",
+  measurementId: "G-Q5807BSVTN",
 };
 
 // Initialize Firebase App
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-// Initialize Firestore with custom database ID
-const db = initializeFirestore(app, {}, "ai-studio-760e2ead-71bb-4f98-a941-bdd2c88b9c5f");
+// Firestore — this project uses the standard default database.
+const db = getFirestore(app);
 
-// Initialize Auth
+// Auth
 const auth = getAuth(app);
 
-// Verify Connection to Firestore as required by firebase-integration skill
+// Lightweight connection check (logs to the console, non-fatal).
 async function testConnection() {
   try {
-    // Attempt a silent read from a dummy path to trigger/verify connection
     await getDocFromServer(doc(db, "test", "connection"));
     console.log("Firebase Firestore connected successfully!");
   } catch (error) {
