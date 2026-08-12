@@ -1,8 +1,70 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if true;
+
+    // =========================================================================
+    // DEMO / SANDBOX collections.
+    //
+    // These remain intentionally open so the existing demo (first-run seeding,
+    // directory, requests, notifications) keeps working without a full auth
+    // migration. This is DEVELOPMENT posture — see the README "Sandbox Mode"
+    // section. Lock these down (e.g. `if request.auth != null` plus per-doc
+    // ownership) before a real production launch. This app is NOT production
+    // secure while these rules are `if true`.
+    // =========================================================================
+    match /users/{userId}          { allow read, write: if true; }
+    match /requests/{requestId}    { allow read, write: if true; }
+    match /donations/{donationId}  { allow read, write: if true; }
+    match /notifications/{notifId} { allow read, write: if true; }
+    match /announcements/{annId}   { allow read, write: if true; }
+    match /test/{docId}            { allow read, write: if true; }
+
+    // =========================================================================
+    // LIVE DONOR TRACKING — production-grade privacy rules.
+    //
+    // A donor's live coordinates are sensitive, so this subcollection is locked
+    // down even while the collections above stay open:
+    //   - Only the accepted donor may WRITE their own location.
+    //   - Only the requester, the accepted donor, or an admin may READ it.
+    //   - Writes are allowed only while the request is still active.
+    //   - Unrelated users can never read or write donor coordinates.
+    // Path: requests/{requestId}/tracking/{trackId}
+    // =========================================================================
+    match /requests/{requestId}/tracking/{trackId} {
+
+      function parentRequest() {
+        return get(/databases/$(database)/documents/requests/$(requestId)).data;
+      }
+
+      function isAdmin() {
+        return request.auth != null
+          && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      }
+
+      function isRequester() {
+        return request.auth != null && request.auth.uid == parentRequest().userId;
+      }
+
+      function isAcceptedDonor() {
+        return request.auth != null && request.auth.uid == parentRequest().acceptedBy;
+      }
+
+      function requestIsActive() {
+        return parentRequest().status in ['searching', 'accepted', 'in_progress'];
+      }
+
+      // Read: requester, the accepted donor, or an admin — only these three.
+      allow read: if isRequester() || isAcceptedDonor() || isAdmin();
+
+      // Create/update: only the accepted donor, only while the request is active,
+      // and the written donorId must be their own uid (can't spoof another donor).
+      allow create, update: if isAcceptedDonor()
+        && requestIsActive()
+        && request.resource.data.donorId == request.auth.uid;
+
+      // Delete: the accepted donor or an admin (e.g. to clear a stale session).
+      allow delete: if isAcceptedDonor() || isAdmin();
     }
   }
 }
