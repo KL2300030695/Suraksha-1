@@ -44,6 +44,7 @@ A campus-only emergency blood donation platform that matches and notifies a comp
 | 📊 **Donor Dashboard** | Profile management, an availability toggle, donation history, prestige levels, badges, and reward points. |
 | 🛡️ **Admin Console** | Verify member accounts, manage active requests, publish campus-wide announcements, and track safety analytics. |
 | 📝 **3-Step Registration Wizard** | Account → Profile → Health, with a live progress indicator and inline validation. |
+| 🛰️ **Live Donor Tracking** | Uber-style live map: once a donor accepts and taps "Start Journey", the requester watches them move toward the hospital in real time (route + ETA), with strict privacy — location is shared only during an active journey. |
 
 <br />
 
@@ -158,6 +159,32 @@ src/
 ├── firebase.ts                   Firebase app/Firestore/Auth init
 └── types.ts                      Shared TypeScript types
 ```
+
+<br />
+
+## 🛰️ Live Donor Tracking
+
+An Uber/Ola-style live tracking experience for emergency blood donation, built on Firestore's real-time listeners (no extra backend).
+
+**Flow:** request created → donor matched & accepts → donor taps **Start Journey** → GPS is shared → requester taps **Track Donor** and watches them move live on a map → donor reaches the hospital → tracking stops.
+
+**Privacy first:** a donor's location is **never** exposed passively. Sharing starts only after they accept a request *and* explicitly start the journey, and stops on arrival, completion, cancellation, manual stop, or session expiry. Only the requester, the accepted donor, and admins can ever read those coordinates. No historical GPS trail is stored — only the latest position.
+
+**How it works**
+- The donor's browser watches GPS via `navigator.geolocation.watchPosition()`. Writes are throttled — ~4s while moving (by speed *or* distance), ~15s while stationary — so we never write every second.
+- The latest position is stored at **`requests/{requestId}/tracking/current`**. The requester subscribes with Firestore `onSnapshot`, so the map updates with no page refresh.
+- Distance/ETA and the route line come from **OSRM** (public demo server, no key) with an instant straight-line fallback; hospital coordinates are geocoded via **OpenStreetMap Nominatim** and cached on the request.
+- Staleness is surfaced honestly: after 60s "hasn't updated recently"; after 3 min "live location unavailable" — an old fix is never shown as current.
+
+**New packages:** `leaflet`, `react-leaflet`, `@types/leaflet`.
+
+**Environment variables (all optional — defaults need no config):** `VITE_OSRM_URL`, `VITE_ORS_API_KEY` — see [`.env.example`](.env.example).
+
+**Firestore rules:** `firestore.rules` now locks down the tracking subcollection (donor writes only their own location while the request is active; requester/donor/admin read only their own request's tracking) while keeping the other collections open for the demo. **Publish `firestore.rules` in the Firebase console** to enforce this.
+
+**Local testing (two browsers):** open the app in two sessions — a **donor** (who accepts a request and taps Start Journey) and the **requester** (who taps Track Donor). No physical GPS? In Chrome DevTools → **⋮ → More tools → Sensors → Location**, set a custom lat/lng (e.g. `16.5062, 80.6480`), then change it (e.g. `16.5070, 80.6490`) and watch the requester's marker move.
+
+**Limitations:** browser GPS accuracy varies (especially on desktops, which often report no `speed`); the public OSRM/Nominatim servers are rate-limited (swap in your own/ORS key for production); timestamps use device clocks, so large clock skew can affect the "last updated" readout.
 
 <br />
 

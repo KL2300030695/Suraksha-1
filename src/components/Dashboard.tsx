@@ -56,6 +56,7 @@ import {
 import DonorDirectory from "./DonorDirectory";
 import RequestPortal from "./RequestPortal";
 import SmartMatchingPanel from "./SmartMatchingPanel";
+import TrackingPanel from "./tracking/TrackingPanel";
 
 interface DashboardProps {
   currentUser: UserProfile;
@@ -914,13 +915,16 @@ export default function Dashboard({ currentUser: initialUser, onLogout }: Dashbo
                                 transition={{ duration: 0.25 }}
                                 className="overflow-hidden"
                               >
-                                <SmartMatchingPanel 
-                                  request={req} 
-                                  currentUser={currentUser} 
+                                <SmartMatchingPanel
+                                  request={req}
+                                  currentUser={currentUser}
                                 />
                               </motion.div>
                             )}
                           </AnimatePresence>
+
+                          {/* Live donor tracking (donor: start journey · requester: track) */}
+                          <TrackingPanel request={req} currentUser={currentUser} />
 
                         </div>
                       ))}
@@ -1402,13 +1406,16 @@ export default function Dashboard({ currentUser: initialUser, onLogout }: Dashbo
                                 transition={{ duration: 0.25 }}
                                 className="overflow-hidden w-full"
                               >
-                                <SmartMatchingPanel 
-                                  request={req} 
-                                  currentUser={currentUser} 
+                                <SmartMatchingPanel
+                                  request={req}
+                                  currentUser={currentUser}
                                 />
                               </motion.div>
                             )}
                           </AnimatePresence>
+
+                          {/* Live donor tracking (requester: track the donor they matched with) */}
+                          <TrackingPanel request={req} currentUser={currentUser} />
 
                         </div>
                       ))}

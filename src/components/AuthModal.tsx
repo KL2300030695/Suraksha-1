@@ -241,12 +241,16 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
 
       // 3. Store the campus profile in Firestore, keyed by the Auth UID.
       const uid = cred.user.uid;
+      // Self-registration can never grant admin. Even if the role value is
+      // tampered with, coerce it to a non-privileged role. Admins are created
+      // only by an existing admin. New accounts always start unverified.
+      const safeRole: UserRole = role === "admin" ? "student" : role;
       const profile: any = {
         uid,
         name,
         email: cleanEmail,
         idCard,
-        role,
+        role: safeRole,
         department,
         bloodGroup,
         phone,
@@ -254,9 +258,9 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
         dob: dob || null,
         isEligible: isEligible !== undefined ? isEligible : true,
         isAvailable: isAvailable !== undefined ? isAvailable : true,
-        verified: role === "admin",
+        verified: false,
         createdAt: new Date().toISOString(),
-        year: (role === "student" && year) ? year : null,
+        year: (safeRole === "student" && year) ? year : null,
         lastDonation: lastDonation || null,
       };
 
@@ -526,7 +530,6 @@ export default function AuthModal({ onSuccess, initialMode = "login" }: AuthModa
                         <option value="student">Student</option>
                         <option value="faculty">Faculty</option>
                         <option value="staff">Staff</option>
-                        <option value="admin">Admin</option>
                       </select>
                     </div>
                     <div>
