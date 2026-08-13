@@ -1,4 +1,4 @@
-import { getAdminAuth, sendBrevoEmail, emailShell, isUniversityEmail } from "./_lib.js";
+import { generateActionLink, sendBrevoEmail, emailShell, isUniversityEmail } from "./_lib.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -10,15 +10,8 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Only KL University emails are allowed." });
     }
 
-    let link;
-    try {
-      link = await getAdminAuth().generateEmailVerificationLink(email);
-    } catch (e) {
-      if (e.code === "auth/user-not-found") {
-        return res.status(200).json({ ok: true });
-      }
-      throw e;
-    }
+    const link = await generateActionLink(email, "VERIFY_EMAIL");
+    if (!link) return res.status(200).json({ ok: true });
 
     await sendBrevoEmail({
       to: email,

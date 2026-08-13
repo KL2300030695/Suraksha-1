@@ -1,4 +1,4 @@
-import { getAdminAuth, sendBrevoEmail, emailShell, isUniversityEmail } from "./_lib.js";
+import { generateActionLink, sendBrevoEmail, emailShell, isUniversityEmail } from "./_lib.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -10,16 +10,9 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Only KL University emails are allowed." });
     }
 
-    let link;
-    try {
-      link = await getAdminAuth().generatePasswordResetLink(email);
-    } catch (e) {
-      // Anti-enumeration: never reveal whether an account exists.
-      if (e.code === "auth/user-not-found") {
-        return res.status(200).json({ ok: true });
-      }
-      throw e;
-    }
+    // Anti-enumeration: null link means no such account — still return ok.
+    const link = await generateActionLink(email, "PASSWORD_RESET");
+    if (!link) return res.status(200).json({ ok: true });
 
     await sendBrevoEmail({
       to: email,
