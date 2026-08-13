@@ -53,10 +53,10 @@ export default function TrackingStatus({
   const statusColor = isDone
     ? "text-gray-400"
     : staleness === "unavailable"
-    ? "text-red-400"
+    ? "text-red-600"
     : staleness === "stale"
-    ? "text-yellow-400"
-    : "text-green-400";
+    ? "text-amber-600"
+    : "text-green-600";
 
   const dotColor = isDone
     ? "bg-gray-500"
@@ -82,19 +82,19 @@ export default function TrackingStatus({
       {/* Distance + ETA */}
       {!isDone && (
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3">
+          <div className="bg-gray-50 border border-gray-100 rounded-xl p-3">
             <div className="text-[9px] font-mono uppercase tracking-widest text-gray-500 flex items-center gap-1">
               <Navigation className="w-3 h-3" /> Distance
             </div>
-            <div className="text-lg font-display font-black text-white mt-0.5">
+            <div className="text-lg font-display font-black text-gray-900 mt-0.5">
               {distanceMeters != null ? formatDistance(distanceMeters) : "—"}
             </div>
           </div>
-          <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3">
+          <div className="bg-gray-50 border border-gray-100 rounded-xl p-3">
             <div className="text-[9px] font-mono uppercase tracking-widest text-gray-500 flex items-center gap-1">
               <Clock className="w-3 h-3" /> ETA
             </div>
-            <div className="text-lg font-display font-black text-white mt-0.5">
+            <div className="text-lg font-display font-black text-gray-900 mt-0.5">
               {etaSeconds != null ? formatDuration(etaSeconds) : "—"}
             </div>
           </div>
@@ -123,13 +123,13 @@ export default function TrackingStatus({
 
       {/* Staleness warnings — never present an old location as current. */}
       {!isDone && staleness === "stale" && (
-        <div className="flex items-start gap-2 p-2.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-[11px] text-yellow-300">
+        <div className="flex items-start gap-2 p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-[11px] text-amber-700">
           <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
           <span>Donor location hasn't updated recently. Showing the last known position.</span>
         </div>
       )}
       {!isDone && staleness === "unavailable" && (
-        <div className="flex items-start gap-2 p-2.5 rounded-lg bg-red-500/10 border border-red-500/20 text-[11px] text-red-300">
+        <div className="flex items-start gap-2 p-2.5 rounded-lg bg-red-50 border border-red-200 text-[11px] text-red-700">
           <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
           <span>Live location unavailable — the donor's device hasn't reported a position in a while.</span>
         </div>

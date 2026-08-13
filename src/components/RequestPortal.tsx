@@ -12,8 +12,8 @@ interface RequestPortalProps {
 // Numbered eyebrow heading so a stressed user can scan the form's structure at a glance.
 function SectionLabel({ index, label }: { index: number; label: string }) {
   return (
-    <div className="flex items-center gap-2 text-[10px] font-mono font-bold text-red-400 uppercase tracking-widest">
-      <span className="w-4.5 h-4.5 shrink-0 rounded-full bg-red-600/10 border border-red-500/20 flex items-center justify-center text-[9px] text-red-400">
+    <div className="flex items-center gap-2 text-[11px] font-bold text-red-600 uppercase tracking-wide">
+      <span className="w-5 h-5 shrink-0 rounded-full bg-red-50 border border-red-100 flex items-center justify-center text-[10px] text-red-600">
         {index}
       </span>
       {label}
@@ -170,7 +170,7 @@ export default function RequestPortal({ currentUser, onSuccess }: RequestPortalP
   };
 
   return (
-    <div className="max-w-3xl mx-auto bg-navy-light/20 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-md shadow-2xl relative overflow-hidden">
+    <div className="max-w-3xl mx-auto bg-white border border-gray-100 rounded-2xl p-6 md:p-8 shadow-sm relative overflow-hidden">
       {/* Background visual highlight */}
       <div className="absolute top-0 right-0 w-36 h-36 bg-red-600/5 rounded-full blur-3xl pointer-events-none" />
 
@@ -179,18 +179,18 @@ export default function RequestPortal({ currentUser, onSuccess }: RequestPortalP
           <div className="w-16 h-16 bg-red-600 text-white rounded-full flex items-center justify-center border border-red-400/25 shadow-lg shadow-red-600/30">
             <CheckCircle className="w-8 h-8" />
           </div>
-          <h3 className="font-display text-2xl font-black text-white">Emergency broadcast live!</h3>
-          <p className="text-sm text-gray-400 max-w-md">
+          <h3 className="font-display text-2xl font-black text-gray-900">Emergency broadcast live!</h3>
+          <p className="text-sm text-gray-500 max-w-md">
             Suraksha smart engine has dispatched real-time alert notifications directly to the dashboards of the <span className="text-red-500 font-bold font-mono">{matchingCount} matching available donors</span>.
           </p>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="border-b border-white/5 pb-4">
-            <h2 className="font-display text-2xl font-black text-white flex items-center gap-2">
+          <div className="border-b border-gray-100 pb-4">
+            <h2 className="font-display text-2xl font-black text-gray-900 flex items-center gap-2">
               <PlusCircle className="w-6 h-6 text-red-500" /> Dispatch Emergency Request
             </h2>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-gray-500 mt-1">
               Trigger the targeted alert system to find matched compatible blood donors inside our university campus instantly. Takes about a minute — your contact details are already filled in.
             </p>
           </div>
@@ -207,8 +207,8 @@ export default function RequestPortal({ currentUser, onSuccess }: RequestPortalP
                   onClick={() => setBloodGroup(bg)}
                   className={`py-2.5 rounded-lg border font-display font-extrabold text-sm transition ${
                     bloodGroup === bg
-                      ? "bg-red-600 text-white border-red-500 shadow-md shadow-red-950/35"
-                      : "bg-navy-dark/60 text-gray-400 border-white/5 hover:border-white/10"
+                      ? "bg-red-600 text-white border-red-500 shadow-sm"
+                      : "bg-gray-50 text-gray-500 border-gray-200 hover:border-gray-300"
                   }`}
                 >
                   {bg}
@@ -218,21 +218,21 @@ export default function RequestPortal({ currentUser, onSuccess }: RequestPortalP
 
             {/* Smart Match Feedback Banner */}
             <div className={`p-4 rounded-xl text-xs flex items-center gap-3 border ${
-              matchingCount > 0 ? "bg-green-950/10 border-green-500/20" : "bg-yellow-950/10 border-yellow-500/20"
+              matchingCount > 0 ? "bg-green-50 border-green-200" : "bg-amber-50 border-amber-200"
             }`}>
               <div className={`w-9 h-9 shrink-0 rounded-lg flex items-center justify-center ${
-                matchingCount > 0 ? "bg-green-500/10 text-green-400" : "bg-yellow-500/10 text-yellow-500"
+                matchingCount > 0 ? "bg-green-100 text-green-600" : "bg-amber-100 text-amber-600"
               }`}>
                 <Sparkles className="w-4.5 h-4.5" />
               </div>
               <span>
-                <span className={`font-bold font-mono text-sm ${matchingCount > 0 ? "text-green-400" : "text-yellow-500"}`}>
+                <span className={`font-bold text-sm ${matchingCount > 0 ? "text-green-600" : "text-amber-600"}`}>
                   {matchingCount} active available donor{matchingCount === 1 ? "" : "s"}
                 </span>
-                <span className="text-gray-400"> on campus right now for </span>
-                <span className="font-mono text-red-400 font-bold">{getCompatibleDonors(bloodGroup).join(", ")}</span>.
+                <span className="text-gray-500"> on campus right now for </span>
+                <span className="font-mono text-red-600 font-bold">{getCompatibleDonors(bloodGroup).join(", ")}</span>.
                 <br />
-                <span className="text-[11px] text-gray-500">Every compatible donor will be notified the instant you submit.</span>
+                <span className="text-[11px] text-gray-400">Every compatible donor will be notified the instant you submit.</span>
               </span>
             </div>
           </div>
@@ -242,7 +242,7 @@ export default function RequestPortal({ currentUser, onSuccess }: RequestPortalP
             <div className="space-y-4">
               <SectionLabel index={2} label="Patient & Timeline" />
               <div>
-                <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-1.5">Patient Name *</label>
+                <label className="block text-xs font-semibold text-gray-500 mb-1.5">Patient Name *</label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                     <User className="w-4 h-4" />
@@ -252,7 +252,7 @@ export default function RequestPortal({ currentUser, onSuccess }: RequestPortalP
                     placeholder="Sanjay Das (Student's Father)"
                     value={patientName}
                     onChange={(e) => setPatientName(e.target.value)}
-                    className="w-full bg-navy-dark/60 border border-white/10 focus:border-red-500 rounded-lg py-2 pl-10 pr-4 text-xs text-white placeholder-gray-500 focus:outline-none transition"
+                    className="w-full bg-gray-50 border border-gray-200 focus:border-red-400 focus:bg-white rounded-xl py-2 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-400 focus:outline-none transition"
                     required
                   />
                 </div>
@@ -260,23 +260,23 @@ export default function RequestPortal({ currentUser, onSuccess }: RequestPortalP
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-1.5">Units Required *</label>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1.5">Units Required *</label>
                   <input
                     type="number"
                     min="1"
                     max="10"
                     value={units}
                     onChange={(e) => setUnits(parseInt(e.target.value) || 1)}
-                    className="w-full bg-navy-dark/60 border border-white/10 focus:border-red-500 rounded-lg py-2 px-3 text-xs text-white focus:outline-none transition font-mono"
+                    className="w-full bg-gray-50 border border-gray-200 focus:border-red-400 focus:bg-white rounded-xl py-2 px-3 text-sm text-gray-900 focus:outline-none transition font-mono"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-1.5">Required Time *</label>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1.5">Required Time *</label>
                   <select
                     value={requiredTime}
                     onChange={(e) => setRequiredTime(e.target.value)}
-                    className="w-full bg-navy-dark/60 border border-white/10 focus:border-red-500 rounded-lg py-2 px-3 text-xs text-white focus:outline-none transition"
+                    className="w-full bg-gray-50 border border-gray-200 focus:border-red-400 focus:bg-white rounded-xl py-2 px-3 text-sm text-gray-900 focus:outline-none transition"
                   >
                     <option value="Immediately (Within 1 Hr)">Immediately (Within 1 Hr)</option>
                     <option value="Within 2 Hours">Within 2 Hours</option>
@@ -288,7 +288,7 @@ export default function RequestPortal({ currentUser, onSuccess }: RequestPortalP
               </div>
 
               <div>
-                <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-1.5">Hospital Name *</label>
+                <label className="block text-xs font-semibold text-gray-500 mb-1.5">Hospital Name *</label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                     <Building className="w-4 h-4" />
@@ -298,20 +298,20 @@ export default function RequestPortal({ currentUser, onSuccess }: RequestPortalP
                     placeholder="City Metro Superspeciality Hospital"
                     value={hospital}
                     onChange={(e) => setHospital(e.target.value)}
-                    className="w-full bg-navy-dark/60 border border-white/10 focus:border-red-500 rounded-lg py-2 pl-10 pr-4 text-xs text-white placeholder-gray-500 focus:outline-none transition"
+                    className="w-full bg-gray-50 border border-gray-200 focus:border-red-400 focus:bg-white rounded-xl py-2 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-400 focus:outline-none transition"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-1.5">Location / Address *</label>
+                <label className="block text-xs font-semibold text-gray-500 mb-1.5">Location / Address *</label>
                 <input
                   type="text"
                   placeholder="Block C, Metro Junction (3km from Campus)"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full bg-navy-dark/60 border border-white/10 focus:border-red-500 rounded-lg py-2 px-3 text-xs text-white placeholder-gray-500 focus:outline-none transition"
+                  className="w-full bg-gray-50 border border-gray-200 focus:border-red-400 focus:bg-white rounded-xl py-2 px-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none transition"
                   required
                 />
               </div>
@@ -321,23 +321,23 @@ export default function RequestPortal({ currentUser, onSuccess }: RequestPortalP
             <div className="space-y-4">
               <SectionLabel index={3} label="Contact Person" />
               <div>
-                <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-1.5">Contact Person Name *</label>
+                <label className="block text-xs font-semibold text-gray-500 mb-1.5">Contact Person Name *</label>
                 <input
                   type="text"
                   value={contactName}
                   onChange={(e) => setContactName(e.target.value)}
-                  className="w-full bg-navy-dark/60 border border-white/10 focus:border-red-500 rounded-lg py-2 px-3 text-xs text-white focus:outline-none transition"
+                  className="w-full bg-gray-50 border border-gray-200 focus:border-red-400 focus:bg-white rounded-xl py-2 px-3 text-sm text-gray-900 focus:outline-none transition"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-1.5">Phone Number *</label>
+                <label className="block text-xs font-semibold text-gray-500 mb-1.5">Phone Number *</label>
                 <input
                   type="text"
                   value={contactPhone}
                   onChange={(e) => setContactPhone(e.target.value)}
-                  className="w-full bg-navy-dark/60 border border-white/10 focus:border-red-500 rounded-lg py-2 px-3 text-xs text-white focus:outline-none transition font-mono"
+                  className="w-full bg-gray-50 border border-gray-200 focus:border-red-400 focus:bg-white rounded-xl py-2 px-3 text-sm text-gray-900 focus:outline-none transition font-mono"
                   required
                 />
                 <span className="text-[9px] text-gray-500 mt-1 block">Only shown to the donor who accepts your request.</span>
@@ -345,7 +345,7 @@ export default function RequestPortal({ currentUser, onSuccess }: RequestPortalP
 
               <SectionLabel index={4} label="Urgency & Notes" />
               <div>
-                <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-1.5">Urgency Level *</label>
+                <label className="block text-xs font-semibold text-gray-500 mb-1.5">Urgency Level *</label>
                 <div className="grid grid-cols-3 gap-2">
                   {(["medium", "high", "critical"] as UrgencyLevel[]).map((level) => (
                     <button
@@ -359,7 +359,7 @@ export default function RequestPortal({ currentUser, onSuccess }: RequestPortalP
                             : level === "high"
                             ? "bg-orange-600 text-white border-orange-500 shadow-md"
                             : "bg-yellow-600 text-white border-yellow-500 shadow-md"
-                          : "bg-navy-dark/60 text-gray-400 border-white/5 hover:border-white/10"
+                          : "bg-gray-50 text-gray-500 border-gray-200 hover:border-gray-300"
                       }`}
                     >
                       {level}
@@ -369,29 +369,29 @@ export default function RequestPortal({ currentUser, onSuccess }: RequestPortalP
               </div>
 
               <div>
-                <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-1.5">Additional Emergency Notes</label>
+                <label className="block text-xs font-semibold text-gray-500 mb-1.5">Additional Emergency Notes</label>
                 <textarea
                   placeholder="Details of surgery, bypass requirements, doctor reference number or ward information..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={2}
-                  className="w-full bg-navy-dark/60 border border-white/10 focus:border-red-500 rounded-lg py-2 px-3 text-xs text-white placeholder-gray-500 focus:outline-none transition resize-none"
+                  className="w-full bg-gray-50 border border-gray-200 focus:border-red-400 focus:bg-white rounded-xl py-2 px-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none transition resize-none"
                 />
               </div>
             </div>
           </div>
 
-          <div className="p-3.5 bg-yellow-950/20 border border-yellow-500/10 rounded-xl text-xs text-gray-400 flex items-start gap-2">
+          <div className="p-3.5 bg-amber-50 border border-amber-100 rounded-xl text-xs text-gray-600 flex items-start gap-2">
             <AlertCircle className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
             <span>
-              <span className="font-semibold text-white">Genuine emergencies only:</span> Falsifying blood requests is a serious academic offence. Please use this system only for real university-related emergencies.
+              <span className="font-semibold text-gray-900">Genuine emergencies only:</span> Falsifying blood requests is a serious academic offence. Please use this system only for real university-related emergencies.
             </span>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-800 text-white font-bold py-3 px-6 rounded-xl text-sm transition shadow-lg shadow-red-950/60 flex items-center justify-center gap-2"
+            className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-300 text-white font-bold py-3 px-6 rounded-xl text-sm transition shadow-sm flex items-center justify-center gap-2"
           >
             {loading ? "Sending alerts to donors..." : "Send Emergency Request"}
           </button>
