@@ -86,184 +86,151 @@ export default function DonorDirectory() {
     }));
   };
 
+  const cardBase = "bg-white border border-gray-100 rounded-2xl shadow-sm";
+
   return (
-    <div className="space-y-6">
-      {/* Search Header Banner */}
-      <div className="bg-navy-light/20 border border-white/5 p-6 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div className="space-y-5">
+      {/* Header */}
+      <div className={`${cardBase} p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-3`}>
         <div>
-          <h2 className="font-display text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-            <Heart className="w-6 h-6 text-red-500 fill-red-500" /> Verify Campus Donor Directory
+          <h2 className="font-display text-xl font-black text-gray-900 flex items-center gap-2">
+            <Heart className="w-5 h-5 text-red-500 fill-red-500" /> Campus Donor Directory
           </h2>
-          <p className="text-xs text-gray-400 mt-1">
-            Search active university students, faculty and staff. Direct contact should strictly be reserved for medical emergencies.
+          <p className="text-xs text-gray-500 mt-1">
+            Search active university students, faculty and staff. Contact should be reserved for medical emergencies.
           </p>
         </div>
-        <button 
-          onClick={fetchDonors}
-          className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300 transition font-mono"
-        >
+        <button onClick={fetchDonors} className="flex items-center gap-1 text-xs font-semibold text-red-600 hover:text-red-700 transition">
           <RefreshCw className="w-3.5 h-3.5" /> Refresh
         </button>
       </div>
 
-      {/* Advanced Filter Interface */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-navy-light/40 border border-white/10 p-4 rounded-xl backdrop-blur-sm">
-        {/* Term Search */}
+      {/* Filters */}
+      <div className={`grid grid-cols-1 md:grid-cols-3 gap-3 ${cardBase} p-4`}>
         <div className="relative">
           <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
             <Search className="w-4 h-4" />
           </span>
           <input
             type="text"
-            placeholder="Search by Name, Department, Year..."
+            placeholder="Search by name, department, year..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-navy-dark/60 border border-white/10 focus:border-red-500 rounded-lg py-2 pl-10 pr-4 text-xs text-white placeholder-gray-500 focus:outline-none transition"
+            className="w-full bg-gray-50 border border-gray-200 focus:border-red-400 focus:bg-white rounded-xl py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-400 focus:outline-none transition"
           />
         </div>
-
-        {/* Blood Type Selection */}
-        <div className="flex items-center gap-2">
-          <label className="text-[11px] font-mono text-gray-400 shrink-0 uppercase">BLOOD TYPE:</label>
-          <select
-            value={selectedBloodGroup}
-            onChange={(e) => setSelectedBloodGroup(e.target.value)}
-            className="w-full bg-navy-dark/60 border border-white/10 focus:border-red-500 rounded-lg py-2 px-3 text-xs text-red-500 font-bold focus:outline-none transition"
-          >
-            {bloodGroups.map((bg) => (
-              <option key={bg} value={bg}>{bg}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Availability Select */}
-        <div className="flex items-center gap-2">
-          <label className="text-[11px] font-mono text-gray-400 shrink-0 uppercase">STATUS:</label>
-          <select
-            value={selectedAvailability}
-            onChange={(e) => setSelectedAvailability(e.target.value)}
-            className="w-full bg-navy-dark/60 border border-white/10 focus:border-red-500 rounded-lg py-2 px-3 text-xs text-white focus:outline-none transition"
-          >
-            <option value="ALL">All Members</option>
-            <option value="available">🟢 Available Donors Only</option>
-            <option value="unavailable">🔴 On Recovery/Sabbatical</option>
-          </select>
-        </div>
+        <select
+          value={selectedBloodGroup}
+          onChange={(e) => setSelectedBloodGroup(e.target.value)}
+          className="w-full bg-gray-50 border border-gray-200 focus:border-red-400 rounded-xl py-2.5 px-3 text-sm text-red-600 font-bold focus:outline-none transition"
+        >
+          {bloodGroups.map((bg) => (
+            <option key={bg} value={bg}>{bg === "ALL" ? "All blood types" : bg}</option>
+          ))}
+        </select>
+        <select
+          value={selectedAvailability}
+          onChange={(e) => setSelectedAvailability(e.target.value)}
+          className="w-full bg-gray-50 border border-gray-200 focus:border-red-400 rounded-xl py-2.5 px-3 text-sm text-gray-900 focus:outline-none transition"
+        >
+          <option value="ALL">All members</option>
+          <option value="available">Available donors only</option>
+          <option value="unavailable">Currently unavailable</option>
+        </select>
       </div>
 
-      {/* Roster Cards Grid */}
+      {/* Cards */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 gap-3">
           <RefreshCw className="w-8 h-8 text-red-500 animate-spin" />
-          <p className="text-xs font-mono text-gray-400">Querying verified university records...</p>
+          <p className="text-xs text-gray-500">Loading verified campus donors…</p>
         </div>
       ) : filteredDonors.length === 0 ? (
-        <div className="text-center py-16 bg-navy-light/10 border border-dashed border-white/10 rounded-xl space-y-2">
+        <div className={`text-center py-16 ${cardBase} space-y-2`}>
           <AlertCircle className="w-8 h-8 text-red-500 mx-auto" />
-          <h4 className="text-sm font-semibold text-white">No Matching Campus Donors</h4>
-          <p className="text-xs text-gray-400 max-w-md mx-auto">
-            Try adjusting your search or selecting 'All Members' to find available donors.
-          </p>
+          <h4 className="text-sm font-semibold text-gray-900">No matching donors</h4>
+          <p className="text-xs text-gray-500 max-w-md mx-auto">Try adjusting your search or selecting 'All members'.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredDonors.map((donor) => (
-            <div 
+            <div
               key={donor.uid}
-              className={`p-5 rounded-2xl bg-navy-light/30 border transition duration-300 flex flex-col justify-between ${
-                donor.isAvailable 
-                  ? "border-green-500/20 hover:border-green-500/40 hover:bg-green-500/[0.01]" 
-                  : "border-white/5 hover:border-white/10"
-              }`}
+              className={`${cardBase} p-5 flex flex-col justify-between transition ${donor.isAvailable ? "hover:border-green-200" : "hover:border-gray-200"}`}
             >
               <div>
-                {/* Header: Name, Avatar, Blood Group */}
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex items-center gap-3">
-                    {/* Circle Initial Avatar */}
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-display font-extrabold text-sm border shadow-md ${
-                      donor.isAvailable 
-                        ? "bg-green-950/40 text-green-400 border-green-500/30" 
-                        : "bg-navy-dark border-white/10 text-gray-400"
+                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center font-display font-extrabold text-sm ${
+                      donor.isAvailable ? "bg-green-50 text-green-600 border border-green-200" : "bg-gray-100 text-gray-500"
                     }`}>
-                      {donor.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
+                      {donor.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-white flex items-center gap-1.5 leading-snug">
+                      <h4 className="text-sm font-bold text-gray-900 flex items-center gap-1.5 leading-snug">
                         {donor.name}
                         {donor.verified && (
-                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-400 text-[8px] font-mono font-bold uppercase tracking-wide shrink-0">
+                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-blue-600 text-[8px] font-bold uppercase tracking-wide shrink-0">
                             <BadgeCheck className="w-2.5 h-2.5" /> Verified
                           </span>
                         )}
                       </h4>
-                      <p className="text-[11px] text-gray-400 font-medium capitalize">
-                        {donor.role} • {donor.department}
-                      </p>
-                      {donor.year && (
-                        <p className="text-[10px] text-red-400 font-mono">{donor.year}</p>
-                      )}
+                      <p className="text-[11px] text-gray-500 font-medium capitalize">{donor.role} • {donor.department}</p>
+                      {donor.year && <p className="text-[10px] text-red-500 font-semibold">{donor.year}</p>}
                     </div>
                   </div>
-
-                  {/* Blood Group Badge */}
-                  <span className="w-10 h-10 rounded-xl bg-red-600/10 text-red-500 border border-red-500/20 flex flex-col items-center justify-center shrink-0">
-                    <span className="font-display font-black text-sm leading-tight">{donor.bloodGroup}</span>
+                  <span className="w-10 h-10 rounded-xl bg-red-50 text-red-600 border border-red-100 flex items-center justify-center shrink-0 font-display font-black text-sm">
+                    {donor.bloodGroup}
                   </span>
                 </div>
 
-                {/* Body Details */}
-                <div className="space-y-1.5 border-t border-white/5 pt-3 my-3 text-[11px] text-gray-400">
+                <div className="space-y-1.5 border-t border-gray-100 pt-3 my-3 text-[11px] text-gray-500">
                   <div className="flex justify-between">
-                    <span>Availability Status:</span>
-                    <span className={`font-mono font-bold ${donor.isAvailable ? 'text-green-400' : 'text-gray-500'}`}>
-                      {donor.isAvailable ? "🟢 ACTIVE & AVAILABLE" : "🔴 NOT AVAILABLE"}
+                    <span>Availability</span>
+                    <span className={`font-bold ${donor.isAvailable ? "text-green-600" : "text-gray-400"}`}>
+                      {donor.isAvailable ? "Active & available" : "Unavailable"}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Medical Eligibility:</span>
-                    <span className={`font-medium ${donor.isEligible ? 'text-green-400' : 'text-red-400'}`}>
-                      {donor.isEligible ? "Safe to Donate" : "Not Eligible"}
+                    <span>Eligibility</span>
+                    <span className={`font-semibold ${donor.isEligible ? "text-green-600" : "text-red-500"}`}>
+                      {donor.isEligible ? "Safe to donate" : "Not eligible"}
                     </span>
                   </div>
                   {donor.lastDonation && (
                     <div className="flex justify-between">
-                      <span>Last Blood Donation:</span>
-                      <span className="text-slate-300 font-mono">{donor.lastDonation}</span>
+                      <span>Last donation</span>
+                      <span className="text-gray-700">{donor.lastDonation}</span>
                     </div>
                   )}
                   <div className="flex justify-between">
-                    <span>Campus ID Card:</span>
-                    <span className="text-slate-300 font-mono">{donor.idCard}</span>
+                    <span>Campus ID</span>
+                    <span className="text-gray-700 font-mono">{donor.idCard}</span>
                   </div>
                 </div>
               </div>
 
-              {/* Action: Reveal contact info for emergency */}
-              <div className="mt-2 pt-3 border-t border-white/5">
+              <div className="mt-1 pt-3 border-t border-gray-100">
                 {revealedContacts[donor.uid] ? (
-                  <div className="bg-navy-dark/85 p-2.5 rounded-xl border border-white/10 space-y-1.5 animate-slide-in text-xs">
-                    <div className="flex items-center gap-2 text-slate-200">
+                  <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-100 space-y-1.5 text-xs">
+                    <div className="flex items-center gap-2 text-gray-700">
                       <Phone className="w-3.5 h-3.5 text-red-500" />
-                      <a href={`tel:${donor.phone}`} className="hover:underline font-mono font-bold">{donor.phone}</a>
+                      <a href={`tel:${donor.phone}`} className="hover:underline font-semibold">{donor.phone}</a>
                     </div>
-                    <div className="flex items-center gap-2 text-slate-200 overflow-hidden">
+                    <div className="flex items-center gap-2 text-gray-700 overflow-hidden">
                       <Mail className="w-3.5 h-3.5 text-red-500" />
-                      <a href={`mailto:${donor.email}`} className="hover:underline text-[10px] truncate">{donor.email}</a>
+                      <a href={`mailto:${donor.email}`} className="hover:underline text-[11px] truncate">{donor.email}</a>
                     </div>
-                    <button
-                      onClick={() => toggleContact(donor.uid)}
-                      className="w-full text-center text-[10px] font-mono text-gray-500 hover:text-white transition mt-1 pt-1 border-t border-white/5"
-                    >
-                      Hide Details
+                    <button onClick={() => toggleContact(donor.uid)} className="w-full text-center text-[10px] font-semibold text-gray-400 hover:text-gray-700 transition mt-1 pt-1 border-t border-gray-100">
+                      Hide details
                     </button>
                   </div>
                 ) : (
                   <button
                     onClick={() => toggleContact(donor.uid)}
-                    className="w-full py-1.5 bg-white/5 hover:bg-red-600/15 border border-white/10 hover:border-red-500/30 rounded-xl text-[10px] font-mono font-bold uppercase tracking-wider text-gray-300 hover:text-red-400 transition flex items-center justify-center gap-1.5"
+                    className="w-full py-2 bg-gray-50 hover:bg-red-50 border border-gray-200 hover:border-red-200 rounded-xl text-[11px] font-semibold text-gray-600 hover:text-red-600 transition flex items-center justify-center gap-1.5"
                   >
-                    <Eye className="w-3.5 h-3.5" /> Request Emergency Contact
+                    <Eye className="w-3.5 h-3.5" /> Request emergency contact
                   </button>
                 )}
               </div>

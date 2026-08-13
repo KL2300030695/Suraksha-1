@@ -221,14 +221,14 @@ export default function SmartMatchingPanel({ request, currentUser, onUpdate }: S
   };
 
   return (
-    <div className="mt-4 p-5 rounded-2xl bg-navy-light/80 border border-red-500/10 space-y-4 shadow-xl">
-      <div className="flex justify-between items-center border-b border-white/5 pb-3">
+    <div className="mt-4 p-5 rounded-2xl bg-gray-50 border border-gray-200 space-y-4 shadow-inner">
+      <div className="flex justify-between items-center border-b border-gray-200 pb-3">
         <div className="flex items-center gap-2">
-          <div className="p-1 bg-red-600/10 text-red-500 rounded-lg">
+          <div className="p-1 bg-red-50 text-red-500 rounded-lg">
             <Sparkles className="w-4 h-4 animate-pulse" />
           </div>
           <div>
-            <h4 className="text-xs font-mono font-black text-white uppercase tracking-wider">
+            <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wide">
               Suraksha AI Smart Matching Engine
             </h4>
             <p className="text-[10px] text-gray-400">
@@ -239,7 +239,7 @@ export default function SmartMatchingPanel({ request, currentUser, onUpdate }: S
         <button
           onClick={loadBestMatches}
           disabled={loading}
-          className="p-1.5 hover:bg-white/5 rounded-lg text-gray-400 hover:text-white transition cursor-pointer"
+          className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-700 transition cursor-pointer"
           title="Re-run matching engine"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-red-500" : ""}`} />
@@ -257,9 +257,9 @@ export default function SmartMatchingPanel({ request, currentUser, onUpdate }: S
         </div>
       ) : (
         <div className="space-y-3">
-          <div className="text-[10px] font-mono text-gray-400 uppercase tracking-widest flex justify-between">
+          <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide flex justify-between">
             <span>Ranked Compatible Matches (Top 5 Best)</span>
-            <span className="text-red-400 font-bold">Match score</span>
+            <span className="text-red-600 font-bold">Match score</span>
           </div>
 
           <div className="grid grid-cols-1 gap-3.5">
@@ -285,12 +285,12 @@ export default function SmartMatchingPanel({ request, currentUser, onUpdate }: S
                     transition={{ duration: 0.25, delay: index * 0.05 }}
                     className={`p-4 rounded-xl border transition-all duration-300 relative overflow-hidden flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 ${
                       isThisDonorAccepted
-                        ? "bg-green-950/20 border-green-500/30"
-                        : "bg-navy-dark/40 hover:bg-navy-dark/60 border-white/5 hover:border-white/10"
+                        ? "bg-green-50 border-green-300"
+                        : "bg-white hover:bg-gray-50 border-gray-200 hover:border-gray-300"
                     }`}
                   >
                     {/* Background number rank badge */}
-                    <div className="absolute top-1 right-2 text-[24px] font-black font-display text-white/5 select-none pointer-events-none">
+                    <div className="absolute top-1 right-2 text-[24px] font-black font-display text-gray-100 select-none pointer-events-none">
                       #{index + 1}
                     </div>
 
@@ -301,13 +301,13 @@ export default function SmartMatchingPanel({ request, currentUser, onUpdate }: S
                         <div className={`w-11 h-11 rounded-full p-0.5 shadow-md ${
                           score >= 80 
                             ? "bg-gradient-to-tr from-red-600 to-orange-500" 
-                            : "bg-gradient-to-tr from-slate-700 to-slate-500"
+                            : "bg-gradient-to-tr from-gray-300 to-gray-400"
                         }`}>
-                          <div className="w-full h-full rounded-full bg-navy-dark flex items-center justify-center font-display font-extrabold text-xs text-red-400 border border-white/5">
+                          <div className="w-full h-full rounded-full bg-white flex items-center justify-center font-display font-extrabold text-xs text-red-500 border border-gray-200">
                             {initials}
                           </div>
                         </div>
-                        <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-navy-dark flex items-center justify-center ${
+                        <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white flex items-center justify-center ${
                           donor.isAvailable ? "bg-green-500" : "bg-gray-500"
                         }`} title={donor.isAvailable ? "Available" : "Unavailable"}>
                           <span className={`w-1 h-1 rounded-full bg-white ${donor.isAvailable ? "animate-ping" : ""}`} />
@@ -317,7 +317,7 @@ export default function SmartMatchingPanel({ request, currentUser, onUpdate }: S
                       {/* Info text */}
                       <div className="space-y-0.5">
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-xs text-white leading-tight">
+                          <span className="font-bold text-xs text-gray-900 leading-tight">
                             {donor.name}
                           </span>
                           {isCurrentUserDonor && (
@@ -331,13 +331,13 @@ export default function SmartMatchingPanel({ request, currentUser, onUpdate }: S
                         </div>
 
                         <p className="text-[10px] text-gray-400">
-                          Dept: <span className="text-slate-300 font-medium">{donor.department}</span> • Role: <span className="text-slate-300 capitalize">{donor.role}</span>
+                          Dept: <span className="text-gray-700 font-medium">{donor.department}</span> • Role: <span className="text-gray-700 capitalize">{donor.role}</span>
                         </p>
 
                         <div className="flex items-center gap-x-2 text-[10px] text-gray-500 font-mono">
                           <span className="flex items-center gap-0.5">
                             <Clock className="w-3 h-3 text-gray-500 shrink-0" /> Last Donated:{" "}
-                            <span className="font-bold text-slate-400">
+                            <span className="font-bold text-gray-500">
                               {donor.lastDonation
                                 ? new Date(donor.lastDonation).toLocaleDateString("en-US", {
                                     day: "numeric",
@@ -354,7 +354,7 @@ export default function SmartMatchingPanel({ request, currentUser, onUpdate }: S
                           {reasons.slice(0, 2).map((reason, i) => (
                             <span
                               key={i}
-                              className="px-1.5 py-0.2 bg-white/[0.02] border border-white/5 rounded text-[8px] font-mono text-gray-400"
+                              className="px-1.5 py-0.2 bg-gray-100 border border-gray-200 rounded text-[8px] font-mono text-gray-500"
                             >
                               {reason.split(" (+")[0]}
                             </span>
@@ -364,7 +364,7 @@ export default function SmartMatchingPanel({ request, currentUser, onUpdate }: S
                     </div>
 
                     {/* Right: Score indicator and Respond button */}
-                    <div className="flex sm:flex-col items-end justify-between sm:justify-center gap-3 w-full sm:w-auto border-t sm:border-t-0 border-white/5 pt-2 sm:pt-0 shrink-0">
+                    <div className="flex sm:flex-col items-end justify-between sm:justify-center gap-3 w-full sm:w-auto border-t sm:border-t-0 border-gray-200 pt-2 sm:pt-0 shrink-0">
                       
                       {/* Match Score Badge */}
                       <div className="text-right">

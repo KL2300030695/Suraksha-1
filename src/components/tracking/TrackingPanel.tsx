@@ -28,9 +28,9 @@ export default function TrackingPanel({ request, currentUser }: TrackingPanelPro
   }
   if (isRequester) {
     return (
-      <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between gap-3">
+      <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs font-bold text-white">Your donor is matched</p>
+          <p className="text-xs font-bold text-gray-900">Your donor is matched</p>
           <p className="text-[11px] text-gray-500 truncate">Track their live location on the way to the hospital.</p>
         </div>
         <RequesterTracking request={request} />

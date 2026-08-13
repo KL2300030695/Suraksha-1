@@ -58,11 +58,11 @@ export default function RequesterTracking({ request }: RequesterTrackingProps) {
 
       {open && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="w-full max-w-lg bg-navy-light border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
+          <div className="w-full max-w-lg bg-white border border-gray-200 rounded-2xl shadow-2xl overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
               <div>
-                <h3 className="font-display text-base font-bold text-white flex items-center gap-2">
+                <h3 className="font-display text-base font-bold text-gray-900 flex items-center gap-2">
                   <Radio className="w-4 h-4 text-red-500" /> Tracking donor
                 </h3>
                 <p className="text-[11px] text-gray-500 flex items-center gap-1 mt-0.5">
@@ -71,7 +71,7 @@ export default function RequesterTracking({ request }: RequesterTrackingProps) {
               </div>
               <button
                 onClick={() => setOpen(false)}
-                className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition"
+                className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-400 hover:text-gray-900 transition"
                 aria-label="Close"
               >
                 <X className="w-4 h-4" />
@@ -79,7 +79,7 @@ export default function RequesterTracking({ request }: RequesterTrackingProps) {
             </div>
 
             {/* Map */}
-            <div className="h-72 sm:h-80 bg-navy-dark relative">
+            <div className="h-72 sm:h-80 bg-gray-100 relative">
               <LiveDonorMap
                 donor={donorPoint}
                 hospital={hospital}
@@ -89,9 +89,9 @@ export default function RequesterTracking({ request }: RequesterTrackingProps) {
                 className="h-full w-full"
               />
               {notStarted && !ended && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-navy-dark/80 text-center px-6">
-                  <Hourglass className="w-7 h-7 text-yellow-400 animate-pulse" />
-                  <p className="text-sm font-bold text-white">Waiting for the donor to start their journey</p>
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-white/85 text-center px-6">
+                  <Hourglass className="w-7 h-7 text-amber-600 animate-pulse" />
+                  <p className="text-sm font-bold text-gray-900">Waiting for the donor to start their journey</p>
                   <p className="text-[11px] text-gray-400">You'll see them move here the moment they start sharing.</p>
                 </div>
               )}
@@ -101,7 +101,7 @@ export default function RequesterTracking({ request }: RequesterTrackingProps) {
             <div className="p-5">
               {ended ? (
                 <div className="text-center py-2">
-                  <p className="text-sm font-bold text-white">
+                  <p className="text-sm font-bold text-gray-900">
                     {session?.status === "completed" ? "Donor has arrived 🎉" : "Live sharing has ended"}
                   </p>
                   <p className="text-[11px] text-gray-500 mt-0.5">Tracking is no longer active for this request.</p>

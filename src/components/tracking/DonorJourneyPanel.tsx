@@ -73,14 +73,14 @@ export default function DonorJourneyPanel({ request, currentUser }: DonorJourney
   const arrived = distanceMeters != null && distanceMeters <= ARRIVAL_RADIUS_M;
 
   return (
-    <div className="mt-4 pt-4 border-t border-white/5 space-y-4">
+    <div className="mt-4 pt-4 border-t border-gray-100 space-y-4">
       {/* Header */}
       <div className="flex items-center gap-2">
-        <span className="w-8 h-8 rounded-lg bg-red-600/10 border border-red-500/20 text-red-500 flex items-center justify-center">
+        <span className="w-8 h-8 rounded-lg bg-red-50 border border-red-100 text-red-500 flex items-center justify-center">
           <Navigation2 className="w-4 h-4" />
         </span>
         <div>
-          <h4 className="text-sm font-bold text-white leading-tight">
+          <h4 className="text-sm font-bold text-gray-900 leading-tight">
             {sharing ? "Live location sharing ON" : "Emergency request accepted"}
           </h4>
           <p className="text-[11px] text-gray-500 flex items-center gap-1">
@@ -91,7 +91,7 @@ export default function DonorJourneyPanel({ request, currentUser }: DonorJourney
 
       {/* Permission / geolocation errors */}
       {error && (
-        <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-300 space-y-2">
+        <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 space-y-2">
           <div className="flex items-start gap-2">
             <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>{error.message}</span>
@@ -99,7 +99,7 @@ export default function DonorJourneyPanel({ request, currentUser }: DonorJourney
           {error.kind !== "unsupported" && (
             <button
               onClick={start}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-gray-200 text-[11px] font-mono font-bold transition"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 text-[11px] font-mono font-bold transition"
             >
               <RefreshCw className="w-3.5 h-3.5" /> Retry
             </button>
@@ -121,13 +121,13 @@ export default function DonorJourneyPanel({ request, currentUser }: DonorJourney
       {sharing && (
         <>
           {!online && (
-            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-[11px] text-yellow-300">
+            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-[11px] text-amber-700">
               <WifiOff className="w-3.5 h-3.5 shrink-0" />
               You're offline — updates will resume automatically when the connection is back.
             </div>
           )}
 
-          <div className="h-56 sm:h-64 rounded-xl overflow-hidden border border-white/10">
+          <div className="h-56 sm:h-64 rounded-xl overflow-hidden border border-gray-200">
             <LiveDonorMap donor={donorPoint} hospital={hospital} route={geometry} heading={location?.heading} />
           </div>
 
@@ -140,7 +140,7 @@ export default function DonorJourneyPanel({ request, currentUser }: DonorJourney
           />
 
           {arrived && (
-            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-green-500/10 border border-green-500/20 text-[11px] text-green-300">
+            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-green-50 border border-green-200 text-[11px] text-green-700">
               <CheckCircle2 className="w-3.5 h-3.5 shrink-0" /> You're at the hospital. Tap below to end sharing.
             </div>
           )}
@@ -150,7 +150,7 @@ export default function DonorJourneyPanel({ request, currentUser }: DonorJourney
             className={`w-full flex items-center justify-center gap-2 font-semibold py-2.5 px-4 rounded-xl text-sm transition border ${
               arrived
                 ? "bg-green-600 hover:bg-green-700 text-white border-green-500/30"
-                : "bg-white/5 hover:bg-white/10 text-gray-200 border-white/10"
+                : "bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-200"
             }`}
           >
             {arrived ? <CheckCircle2 className="w-4 h-4" /> : <Square className="w-4 h-4" />}
