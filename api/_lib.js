@@ -1,18 +1,76 @@
+// ---------------------------------------------------------------------------
 // Shared helpers for the Suraksha serverless functions.
 // Files in /api starting with "_" are NOT treated as routes by Vercel.
-import { initializeApp, getApps, cert } from "firebase-admin/app";
-import { getAuth } from "firebase-admin/auth";
+//
+// Firebase email action links are generated via the Identity Toolkit admin
+// REST API using a service-account OAuth token (signed with Node's built-in
+// crypto). We deliberately avoid the firebase-admin SDK — it's heavy and
+// crashes Vercel's ESM serverless runtime (FUNCTION_INVOCATION_FAILED). This
+// approach needs only `node:crypto` + fetch.
+// ---------------------------------------------------------------------------
+import crypto from "node:crypto";
 
-// Initialize the Firebase Admin app once (reused across warm invocations).
-// The service account JSON is provided via the FIREBASE_SERVICE_ACCOUNT env var
-// (never committed to the repo).
-export function getAdminAuth() {
+const b64url = (s) => Buffer.from(s).toString("base64url");
+
+let cachedToken = null; // { token, exp } — reused across warm invocations
+
+function serviceAccount() {
   const raw = process.env.FIREBASE_SERVICE_ACCOUNT;
   if (!raw) throw new Error("FIREBASE_SERVICE_ACCOUNT env var is not set");
-  const app = getApps().length
-    ? getApps()[0]
-    : initializeApp({ credential: cert(JSON.parse(raw)) });
-  return getAuth(app);
+  return JSON.parse(raw);
+}
+
+// Exchange the service-account key for a short-lived Google OAuth access token.
+async function getAccessToken() {
+  const now = Math.floor(Date.now() / 1000);
+  if (cachedToken && cachedToken.exp - 60 > now) return cachedToken.token;
+
+  const sa = serviceAccount();
+  const header = b64url(JSON.stringify({ alg: "RS256", typ: "JWT" }));
+  const claim = b64url(
+    JSON.stringify({
+      iss: sa.client_email,
+      scope:
+        "https://www.googleapis.com/auth/identitytoolkit https://www.googleapis.com/auth/firebase",
+      aud: sa.token_uri || "https://oauth2.googleapis.com/token",
+      iat: now,
+      exp: now + 3600,
+    })
+  );
+  const signer = crypto.createSign("RSA-SHA256");
+  signer.update(`${header}.${claim}`);
+  const signature = signer.sign(sa.private_key, "base64url");
+
+  const res = await fetch(sa.token_uri || "https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+      assertion: `${header}.${claim}.${signature}`,
+    }),
+  });
+  const data = await res.json();
+  if (!data.access_token) throw new Error("OAuth token exchange failed: " + JSON.stringify(data));
+  cachedToken = { token: data.access_token, exp: now + (data.expires_in || 3600) };
+  return cachedToken.token;
+}
+
+// Generate a Firebase email action link (PASSWORD_RESET | VERIFY_EMAIL) WITHOUT
+// Firebase sending its own email — we deliver it via Brevo. Returns null if the
+// account doesn't exist (anti-enumeration).
+export async function generateActionLink(email, requestType) {
+  const token = await getAccessToken();
+  const res = await fetch("https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ requestType, email, returnOobLink: true }),
+  });
+  const data = await res.json();
+  if (data.error) {
+    if (data.error.message === "EMAIL_NOT_FOUND") return null;
+    throw new Error("sendOobCode failed: " + JSON.stringify(data.error));
+  }
+  return data.oobLink;
 }
 
 // Send a transactional email through Brevo's HTTP API.
